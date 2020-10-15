@@ -8,7 +8,7 @@ metadata:
   annotations:
     openshift.io/display-name: JupyterLab (Persistent)
     description: |-
-      Start JupyterLab images with regular 'jovyan' user, without sudo rights, and using an existing storage volume. 
+      Start JupyterLab images with regular 'jovyan' user, without sudo privileges, and using an existing storage volume. 
       
       You can use any image based on the official Jupyter docker stack: https://github.com/jupyter/docker-stacks
       - jupyter/scipy-notebook

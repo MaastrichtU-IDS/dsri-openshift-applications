@@ -26,7 +26,7 @@ metadata:
     openshift.io/provider-display-name: Institute of Data Science, UM
     openshift.io/documentation-url: "https://github.com/jefferyb/code-server-openshift"
     openshift.io/support-url: https://maastrichtu-ids.github.io/dsri-documentation/help
-
+    template.openshift.io/bindable: "false"
 parameters:
   - name: NAME
     description: Name of your application
