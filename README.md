@@ -2,6 +2,40 @@
 
 Templates and example build for the DSRI OpenShift applications.
 
+## Upload templates to your project
+
+### Data science templates
+
+Running as non root, without sudo privileges
+
+```bash
+for template in $( ls templates-datascience/*.yml ); do oc apply -f ${template} ; done
+```
+
+### Anyuid templates
+
+Containers running as root user.
+
+GPU templates and templates in anyuid folder require the `anyuid` service account enabled in your project (to run the container as root user).
+
+> [Contact us to request](https://maastrichtu-ids.github.io/dsri-documentation/help) `anyuid` privileges if necessary
+
+```bash
+for template in $( ls templates-anyuid/*.yml ); do oc apply -f ${template} ; done
+```
+
+### GPU templates
+
+Containers running as root user
+
+```bash
+for template in $( ls templates-gpu/*/*.yml ); do oc apply -f ${template} ; done
+```
+
+## Create custom Docker image
+
+For JupyterLab or VSCode server: check their respective folders.
+
 ## Create app from template using command
 
 Create app from template file using the CLI:
@@ -29,12 +63,6 @@ Delete all applications from a template:
 ```bash
 oc delete all,secret,configmaps,serviceaccount,rolebinding --selector template=jupyterlab-dynamic
 ```
-
-## Anyuid templates
-
-GPU templates and templates in anyuid folder require the `anyuid` service account enabled in your project (to run the container as root user).
-
-> [Contact us to request](https://maastrichtu-ids.github.io/dsri-documentation/help) `anyuid` privileges if necessary
 
 ## Useful links
 
