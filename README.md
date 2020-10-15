@@ -4,6 +4,13 @@ Templates and example build for the DSRI OpenShift applications.
 
 ## Upload templates to your project
 
+Clone this repository:
+
+```bash
+git clone https://github.com/MaastrichtU-IDS/dsri-openshift-applications.git
+cd dsri-openshift-applications
+```
+
 ### Data science templates
 
 Containers running as non root, without sudo privileges
