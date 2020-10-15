@@ -6,7 +6,7 @@ Templates and example build for the DSRI OpenShift applications.
 
 ### Data science templates
 
-Running as non root, without sudo privileges
+Containers running as non root, without sudo privileges
 
 ```bash
 for template in $( ls templates-datascience/*.yml ); do oc apply -f ${template} ; done
@@ -34,7 +34,9 @@ for template in $( ls templates-gpu/*/*.yml ); do oc apply -f ${template} ; done
 
 ## Create custom Docker image
 
-For JupyterLab or VSCode server: check their respective folders.
+For **VSCode server** or filebrowser: check their respective folders.
+
+For **JupyterLab**: check https://github.com/MaastrichtU-IDS/jupyterlab-on-openshift/
 
 ## Create app from template using command
 
@@ -78,3 +80,5 @@ Convert JSON to YAML: https://www.json2yaml.com
   * https://github.com/jupyter/docker-stacks/tree/master/examples/source-to-image 
 
   * See [their template](https://raw.githubusercontent.com/jupyter/docker-stacks/master/examples/source-to-image/templates.json)
+
+* JupyterHub with GitHub OAuth template based on [jackfrost373/jupyter-root](https://github.com/jackfrost373/jupyter-root) and https://github.com/jupyter-on-openshift/jupyterhub-quickstart
