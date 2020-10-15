@@ -1,0 +1,185 @@
+---
+kind: Template
+apiVersion: template.openshift.io/v1
+metadata:
+  name: rstudio-root-persistent
+  annotations:
+    openshift.io/display-name: RStudio with root user (Persistent)
+    description: |-
+      Start RStudio with the 'rstudio' user which has root (sudo) permissions.
+      
+      Uses rocker RStudio image: https://hub.docker.com/r/rocker/rstudio/
+
+      🗄️ Data stored on an existing persistent storage in the specified folder
+
+      🔒 You need root containers enabled (aka. anyuid) in your project to start this application.
+    iconClass: icon-play
+    tags: R,rstudio,root,persistent
+    openshift.io/provider-display-name: Institute of Data Science, UM
+    openshift.io/documentation-url: https://maastrichtu-ids.github.io/dsri-documentation/docs/deploy-services#rstudio
+    openshift.io/support-url: https://maastrichtu-ids.github.io/dsri-documentation/help
+    template.openshift.io/bindable: 'false'
+labels:
+  template: rstudio-root-persistent
+parameters:
+- name: APPLICATION_NAME
+  displayName: Application name
+  description: Must be unique in the project. It will be used to generate the application
+    URL.
+  value: rstudio
+  required: true
+- name: APPLICATION_USERNAME
+  displayName: RStudio username
+  description: Default user is rstudio.
+  value: rstudio
+  required: true
+- name: PASSWORD
+  displayName: RStudio password
+  description: The password of the RStudio user. It will be stored securely in Resources
+    > Secrets and cannot be read.
+  from: "[a-zA-Z0-9]{16}"
+  generate: expression
+  required: true
+- name: APPLICATION_MEMORY
+  displayName: Notebook memory
+  description: Maximum RAM available for the Jupyter Notebook application.
+  value: 5Gi
+  required: true
+- name: STORAGE_NAME
+  displayName: Storage name
+  description: Name of the Persistent Volume Claim used for storage.
+  value: pvc-mapr-projects-myproject
+  required: true
+- name: STORAGE_FOLDER
+  displayName: Storage folder
+  description: Path to the folder used for storage in the the Persistent Volume Claim.
+  value: my-application
+  required: false
+- name: ENABLE_ROOT
+  displayName: Enable Root
+  description: Enabled by default. If false, the RStudio user does not have access
+    to root in the UI, such that users cannot install binary libraries with apt-get
+    without first entering the container.
+  value: 'TRUE'
+  required: true
+objects:
+- apiVersion: v1
+  kind: Secret
+  metadata:
+    annotations:
+      template.openshift.io/expose-password: "{.data['application-password']}"
+    name: "${APPLICATION_NAME}"
+    labels:
+      app: "${APPLICATION_NAME}"
+  stringData:
+    application-password: "${PASSWORD}"
+
+- kind: ImageStream
+  apiVersion: image.openshift.io/v1
+  metadata:
+    name: rstudio-root-persistent-${APPLICATION_NAME}
+    labels:
+      app: "${APPLICATION_NAME}"
+  spec:
+    tags:
+    - name: latest
+      from:
+        kind: DockerImage
+        name: rocker/rstudio:latest
+    lookupPolicy:
+      local: true
+
+- kind: DeploymentConfig
+  apiVersion: apps.openshift.io/v1
+  metadata:
+    name: "${APPLICATION_NAME}"
+    labels:
+      app: "${APPLICATION_NAME}"
+  spec:
+    strategy:
+      type: Recreate
+    triggers:
+    - type: ConfigChange
+    - type: ImageChange
+      imageChangeParams:
+        automatic: true
+        containerNames:
+        - rstudio-container
+        from:
+          kind: ImageStreamTag
+          name: rstudio-root-persistent-${APPLICATION_NAME}:latest
+    replicas: 1
+    selector:
+      app: "${APPLICATION_NAME}"
+      deploymentconfig: "${APPLICATION_NAME}"
+    template:
+      metadata:
+        labels:
+          app: "${APPLICATION_NAME}"
+          deploymentconfig: "${APPLICATION_NAME}"
+      spec:
+        serviceAccountName: anyuid
+        nodeSelector:
+          dsri.unimaas.nl/cpu: 'true'
+        volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: "${STORAGE_NAME}"
+        containers:
+        - name: rstudio-container
+          image: rstudio-root-persistent-${APPLICATION_NAME}:latest
+          ports:
+          - containerPort: 8787
+            protocol: TCP
+          resources:
+            limits:
+              memory: "${APPLICATION_MEMORY}"
+          volumeMounts:
+          - name: data
+            mountPath: "/home/${APPLICATION_USERNAME}"
+            subPath: "${STORAGE_FOLDER}"
+          env:
+          - name: USER
+            value: "${APPLICATION_USERNAME}"
+          - name: PASSWORD
+            valueFrom:
+              secretKeyRef:
+                key: application-password
+                name: "${APPLICATION_NAME}"
+          - name: ROOT
+            value: "${ENABLE_ROOT}"
+        automountServiceAccountToken: false
+
+- kind: Service
+  apiVersion: v1
+  metadata:
+    name: "${APPLICATION_NAME}"
+    labels:
+      app: "${APPLICATION_NAME}"
+  spec:
+    ports:
+    - name: 8787-tcp
+      protocol: TCP
+      port: 8787
+      targetPort: 8787
+    selector:
+      app: "${APPLICATION_NAME}"
+      deploymentconfig: "${APPLICATION_NAME}"
+
+- kind: Route
+  apiVersion: route.openshift.io/v1
+  metadata:
+    name: "${APPLICATION_NAME}"
+    labels:
+      app: "${APPLICATION_NAME}"
+  spec:
+    host: ''
+    to:
+      kind: Service
+      name: "${APPLICATION_NAME}"
+      weight: 100
+    port:
+      targetPort: 8787-tcp
+    tls:
+      termination: edge
+      insecureEdgeTerminationPolicy: Redirect

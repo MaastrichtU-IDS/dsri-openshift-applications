@@ -1,0 +1,184 @@
+---
+kind: Template
+apiVersion: template.openshift.io/v1
+metadata:
+  name: jupyterlab-custom-persistent
+  annotations:
+    openshift.io/display-name: JupyterLab from custom image (Persistent)
+    description: |-
+      Create and deploy JupyterLab Notebooks built from the Jupyter Docker Stacks (https://github.com/jupyter/docker-stacks) using 'jovyan' as user. 
+      
+      Default image provided is a Jupyter Notebook with Java kernel installed (https://github.com/jbindinga/java-notebook). 
+      
+      🗄️ Persistent storage in /home/jovyan/work in the container.
+
+      🔒 You need root containers enabled (aka. anyuid) in your project to start this application.
+    iconClass: icon-python
+    tags: python,jupyter,notebook,root,persistent
+    openshift.io/provider-display-name: Institute of Data Science, UM
+    openshift.io/documentation-url: https://maastrichtu-ids.github.io/dsri-documentation/docs/deploy-jupyter
+    openshift.io/support-url: https://maastrichtu-ids.github.io/dsri-documentation/help
+    template.openshift.io/bindable: 'false'
+labels:
+  template: jupyterlab-custom-persistent
+parameters:
+- name: APPLICATION_NAME
+  displayName: Application name
+  description: Must be unique in the project. It will be used to generate the application
+    URL.
+  value: jupyterlab-custom
+  required: true
+- name: NOTEBOOK_PASSWORD
+  displayName: Notebook password hash
+  description: The hash for the password to access the notebook. Generate it using "from notebook.auth import passwd;print(passwd('my_password'))"
+  value: sha1:25edc61096e4:f8b6f5526b8f848ec13342bb3b9304471853ffc0
+  required: true
+# - name: PASSWORD
+#   displayName: Notebook password
+#   description: The password of the Jupyter Notebook. It will be stored securely in Resources > Secrets and cannot be read.
+#   from: "[a-zA-Z0-9]{16}"
+#   generate: expression
+#   required: true
+- name: NOTEBOOK_MEMORY
+  displayName: Notebook memory
+  description: Maximum RAM available for the Jupyter Notebook application.
+  value: 6Gi
+  required: true
+- name: CPU_LIMIT
+  displayName: CPU limit
+  description: Number of CPUs available for the Jupyter Notebook application (in millicore, 1 CPU = 1000m).
+  value: "2000m"
+  required: true
+- name: IMAGE_NAME
+  displayName: Docker image used
+  description: Name of the Docker image used to run jupyter lab on DSRI 
+  value: 'jbindinga/java-notebook'
+  required: true
+- name: STORAGE_NAME
+  displayName: Storage name
+  description: Name of the Persistent Volume Claim used for storage.
+  value: pvc-mapr-projects-test-vincent
+  required: true
+- name: STORAGE_FOLDER
+  displayName: Storage folder
+  description: Path to the folder used for storage in the the Persistent Volume Claim
+  value: my-application
+  required: false
+objects:
+
+# - apiVersion: v1
+#   kind: Secret
+#   metadata:
+#     annotations:
+#       template.openshift.io/expose-password: "{.data['application-password']}"
+#     name: "${APPLICATION_NAME}"
+#   stringData:
+#     application-password: "${PASSWORD}"
+
+- kind: DeploymentConfig
+  apiVersion: apps.openshift.io/v1
+  metadata:
+    name: ${APPLICATION_NAME}
+    labels:
+      app: ${APPLICATION_NAME}
+      template: template-jupyterstack-notebook
+  spec:
+    replicas: 1
+    template:
+      metadata:
+        labels:
+          app: ${APPLICATION_NAME}
+          deploymentconfig: ${APPLICATION_NAME}
+          template: template-jupyterstack-notebook
+      spec:
+        serviceAccountName: anyuid
+        nodeSelector:
+          dsri.unimaas.nl/cpu: 'true'
+        containers:
+          - image: ${IMAGE_NAME}
+            imagePullPolicy: IfNotPresent
+            name: jupyterstack-notebook
+            resources:
+              limits:
+                cpu: "${CPU_LIMIT}"
+                memory: "${NOTEBOOK_MEMORY}"
+            ports:
+              - containerPort: 8888
+                protocol: TCP
+            volumeMounts:
+              - name: workdir
+                mountPath: /home/jovyan
+                subPath: ${STORAGE_FOLDER}
+            command:
+              - /usr/local/bin/start-notebook.sh
+            # command:
+            #   - jupyter
+            #   - lab
+            args:
+              - "--NotebookApp.password='${NOTEBOOK_PASSWORD}'"
+            env:
+              # - name: JUPYTER_TOKEN
+              #   value: ${JUPYTER_TOKEN}
+              - name: JUPYTER_ENABLE_LAB
+                value: "yes"
+              # - name: PASSWORD
+              #   valueFrom:
+              #     secretKeyRef:
+              #       key: application-password
+              #       name: "${APPLICATION_NAME}"
+        volumes:
+          - name: workdir
+            persistentVolumeClaim:
+              claimName: ${STORAGE_NAME}
+    selector:
+      app: ${APPLICATION_NAME}
+      deploymentconfig: ${APPLICATION_NAME}
+    strategy:
+      type: Rolling
+    test: false
+    triggers:
+      - type: ConfigChange
+      # - imageChangeParams:
+      #     automatic: true
+      #     containerNames:
+      #       - jupyterstack-notebook
+      #     from:
+      #       kind: ImageStreamTag
+      #       name: 'jbindinga/java-notebook'
+      #   type: ImageChange
+
+- kind: Service
+  apiVersion: v1
+  metadata:
+    name: "${APPLICATION_NAME}"
+    labels:
+      app: "${APPLICATION_NAME}"
+      template: template-jupyterstack-notebook
+  spec:
+    ports:
+    - name: 8888-tcp
+      protocol: TCP
+      port: 8888
+      targetPort: 8888
+    selector:
+      app: "${APPLICATION_NAME}"
+      deploymentconfig: "${APPLICATION_NAME}"
+
+- kind: Route
+  apiVersion: route.openshift.io/v1
+  metadata:
+    name: "${APPLICATION_NAME}"
+    labels:
+      app: "${APPLICATION_NAME}"
+      template: template-jupyterstack-notebook
+  spec:
+    host: ''
+    to:
+      kind: Service
+      name: "${APPLICATION_NAME}"
+      weight: 100
+    port:
+      targetPort: 8888-tcp
+    tls:
+      termination: edge
+      insecureEdgeTerminationPolicy: Redirect

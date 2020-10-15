@@ -1,0 +1,140 @@
+---
+kind: Template
+apiVersion: template.openshift.io/v1
+metadata:
+  name: filebrowser
+  annotations:
+    openshift.io/display-name: File Browser for persistent volumes
+    description: |-
+      Deploy a filebrowser on your persistent volume. This will provide a web UI to upload and download data to your DSRI persistent volume.
+
+      🔑 Default credentials are
+      - login: admin
+      - password: admin
+
+      Please change the password in the Filebrowser Web UI once it has been created.
+
+      🔒 You need root containers enabled (aka. anyuid) in your project to start this application.
+    iconClass: icon-load-balancer
+    tags: filebrowser,storage
+    openshift.io/provider-display-name: Institute of Data Science, UM
+    openshift.io/documentation-url: https://maastrichtu-ids.github.io/dsri-documentation/docs/deploy-jupyter
+    openshift.io/support-url: https://maastrichtu-ids.github.io/dsri-documentation/help
+    template.openshift.io/bindable: 'false'
+labels:
+  template: filebrowser
+message: The filebrowser has been deployed with default login/password (admin/admin). Change it in the Filebrowser web UI settings at the first login.
+parameters:
+- name: APPLICATION_NAME
+  displayName: Application name
+  description: Must be unique in the project. It will be used to generate the application
+    URL.
+  value: filebrowser
+  required: true
+# - name: PASSWORD
+#   displayName: File browser password
+#   description: The password of the File browser. It will be stored securely in
+#     Resources > Secrets and cannot be read.
+#   from: "[a-zA-Z0-9]{16}"
+#   generate: expression
+#   required: true
+- name: STORAGE_NAME
+  displayName: Storage name
+  description: Name of the Persistent Volume Claim that will be exposed by the filebrowser.
+  value: pvc-mapr-projects-myproject
+  required: true
+- name: STORAGE_FOLDER
+  displayName: Storage subpath
+  description: Subpath in the the Persistent Volume Claim that will be exposed by the filebrowser.
+    Let it empty to use the Root folder of the persistent volume.
+  value: folder-path-in-pvc
+  required: false
+objects:
+    
+# - kind: ImageStream
+#   apiVersion: image.openshift.io/v1
+#   metadata:
+#     name: filebrowser-${APPLICATION_NAME}
+#     labels:
+#       app: "${APPLICATION_NAME}"
+#   spec:
+#     tags:
+#     - name: latest
+#       from:
+#         kind: DockerImage
+#         name: filebrowser/filebrowser:latest
+#     lookupPolicy:
+#       local: true
+
+- kind: DeploymentConfig
+  apiVersion: apps.openshift.io/v1
+  metadata:
+    name: "${APPLICATION_NAME}"
+    labels:
+      app: "${APPLICATION_NAME}"
+  spec:
+    strategy:
+      type: Recreate
+    replicas: 1
+    selector:
+      app: "${APPLICATION_NAME}"
+      deploymentconfig: "${APPLICATION_NAME}"
+    template:
+      metadata:
+        labels:
+          app: "${APPLICATION_NAME}"
+          deploymentconfig: "${APPLICATION_NAME}"
+      spec:
+        serviceAccountName: anyuid
+        volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: "${STORAGE_NAME}"
+        containers:
+        - name: filebrowser-container
+          image: filebrowser/filebrowser:latest
+          ports:
+          - containerPort: 80
+            protocol: TCP
+          resources:
+            limits:
+              memory: "2Gi"
+              cpu: "1000m"
+          volumeMounts:
+          - name: data
+            mountPath: "/srv"
+            subPath: "${STORAGE_FOLDER}"
+        automountServiceAccountToken: false
+
+- kind: Service
+  apiVersion: v1
+  metadata:
+    name: "${APPLICATION_NAME}"
+    labels:
+      app: "${APPLICATION_NAME}"
+  spec:
+    ports:
+    - name: 80-tcp
+      protocol: TCP
+      port: 80
+      targetPort: 80
+    selector:
+      app: "${APPLICATION_NAME}"
+      deploymentconfig: "${APPLICATION_NAME}"
+- kind: Route
+  apiVersion: route.openshift.io/v1
+  metadata:
+    name: "${APPLICATION_NAME}"
+    labels:
+      app: "${APPLICATION_NAME}"
+  spec:
+    host: ''
+    to:
+      kind: Service
+      name: "${APPLICATION_NAME}"
+      weight: 100
+    port:
+      targetPort: 80-tcp
+    tls:
+      termination: edge
+      insecureEdgeTerminationPolicy: Redirect
