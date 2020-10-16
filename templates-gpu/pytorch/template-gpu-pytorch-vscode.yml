@@ -53,16 +53,16 @@ parameters:
   description: 8 in total in the cluster.
   value: '1'
   required: true
-- name: MEMORY_LIMIT
-  displayName: Memory limit
-  description: Maximum RAM memory available for the application.
-  value: "60Gi"
-  required: true
-- name: CPU_LIMIT
-  displayName: CPU limit
-  description: Number of CPUs available for the application (in millicore, 1 CPU = 1000m).
-  value: "10000m"
-  required: true
+# - name: MEMORY_LIMIT
+#   displayName: Memory limit
+#   description: Maximum RAM memory available for the application.
+#   value: "60Gi"
+#   required: true
+# - name: CPU_LIMIT
+#   displayName: CPU limit
+#   description: Number of CPUs available for the application (in millicore, 1 CPU = 1000m).
+#   value: "10000m"
+#   required: true
 objects:
 
 # - apiVersion: v1
@@ -93,13 +93,17 @@ objects:
           nvidia.com/gpu: 'true'
         containers:
           - image: ghcr.io/maastrichtu-ids/nvidia-gpu-pytorch-vscode:19.11-py3
+            command:
+              - code-server
+              - --bind-addr
+              - 0.0.0.0:8081
             imagePullPolicy: IfNotPresent
             name: nvidia-pytorch-gpu-vscode
             resources:
               limits:
                 nvidia.com/gpu: '${GPU_LIMIT}'
-                cpu: "${CPU_LIMIT}"
-                memory: "${MEMORY_LIMIT}"
+                # cpu: "${CPU_LIMIT}"
+                # memory: "${MEMORY_LIMIT}"
             ports:
               - containerPort: 8080
                 protocol: TCP

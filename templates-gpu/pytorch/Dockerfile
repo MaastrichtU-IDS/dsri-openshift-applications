@@ -6,4 +6,4 @@ WORKDIR /root
 EXPOSE 8080
 
 ENTRYPOINT [ "code-server" ]
-CMD [ "--bind-addr", "0.0.0.0" ]
+CMD [ "--bind-addr", "0.0.0.0:8081" ]
