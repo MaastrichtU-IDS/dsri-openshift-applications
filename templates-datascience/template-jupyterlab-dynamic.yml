@@ -45,16 +45,16 @@ parameters:
   description: Size of the storage used for the notebook (approximate).
   value: 10Gi
   required: true
-- name: MEMORY_LIMIT
-  displayName: Memory limit
-  description: Maximum RAM memory available for the application.
-  value: "5Gi"
-  required: true
-- name: CPU_LIMIT
-  displayName: CPU limit
-  description: Number of CPUs available for the application (in millicore, 1 CPU = 1000m).
-  value: "2000m"
-  required: true
+# - name: MEMORY_LIMIT
+#   displayName: Memory limit
+#   description: Maximum RAM memory available for the application.
+#   value: "5Gi"
+#   required: true
+# - name: CPU_LIMIT
+#   displayName: CPU limit
+#   description: Number of CPUs available for the application.
+#   value: "2"
+#   required: true
 objects:
 - kind: ConfigMap
   apiVersion: v1
@@ -134,13 +134,13 @@ objects:
             protocol: TCP
           - containerPort: 4041
             protocol: TCP
-          resources:
-            requests: 
-              cpu: "${CPU_LIMIT}"
-              memory: "${MEMORY_LIMIT}"
-            limits:
-              cpu: "128"
-              memory: "250Gi"
+          # resources:
+          #   requests: 
+          #     cpu: "${CPU_LIMIT}"
+          #     memory: "${MEMORY_LIMIT}"
+          #   limits:
+          #     cpu: "128"
+          #     memory: "300Gi"
           env:
           - name: JUPYTER_NOTEBOOK_PASSWORD
             value: "${PASSWORD}"

@@ -39,11 +39,6 @@ parameters:
   from: "[a-zA-Z0-9]{16}"
   generate: expression
   required: true
-- name: NOTEBOOK_MEMORY
-  displayName: Notebook memory
-  description: Maximum RAM available for the Jupyter Notebook application.
-  value: 5Gi
-  required: true
 - name: GIT_REPOSITORY_URL
   displayName: Git repository URL
   description: URL to the Git repository that will be cloned. Dependencies from the
@@ -116,9 +111,13 @@ objects:
           ports:
           - containerPort: 8888
             protocol: TCP
-          resources:
-            limits:
-              memory: "${NOTEBOOK_MEMORY}"
+          # resources:
+          #   limits:
+          #     cpu: '64'
+          #     memory: 200Gi
+          #   requests:
+          #     cpu: '2'
+          #     memory: 4Gi
           env:
           - name: PASSWORD
             valueFrom:

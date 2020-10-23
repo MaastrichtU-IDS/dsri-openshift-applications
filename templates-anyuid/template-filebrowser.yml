@@ -98,8 +98,11 @@ objects:
             protocol: TCP
           resources:
             limits:
-              memory: "2Gi"
-              cpu: "1000m"
+              cpu: '1'
+              memory: 2Gi
+            requests:
+              cpu: '1'
+              memory: 1Gi
           volumeMounts:
           - name: data
             mountPath: "/srv"

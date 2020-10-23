@@ -40,11 +40,11 @@ parameters:
   from: "[a-zA-Z0-9]{16}"
   generate: expression
   required: true
-- name: APPLICATION_MEMORY
-  displayName: Notebook memory
-  description: Maximum RAM available for the Jupyter Notebook application.
-  value: 5Gi
-  required: true
+# - name: APPLICATION_MEMORY
+#   displayName: Application memory
+#   description: Maximum RAM available for the application.
+#   value: 5Gi
+#   required: true
 - name: ENABLE_ROOT
   displayName: Enable Root
   description: Enabled by default. If false, the RStudio user does not have access
@@ -118,9 +118,13 @@ objects:
           ports:
           - containerPort: 8787
             protocol: TCP
-          resources:
-            limits:
-              memory: "${APPLICATION_MEMORY}"
+          # resources:
+          #   limits:
+          #     cpu: '64'
+          #     memory: 200Gi
+          #   requests:
+          #     cpu: '2'
+          #     memory: 4Gi
           env:
           - name: USER
             value: "${APPLICATION_USERNAME}"

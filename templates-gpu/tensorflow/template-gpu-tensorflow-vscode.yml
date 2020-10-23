@@ -74,7 +74,7 @@ parameters:
 # - name: CPU_LIMIT
 #   displayName: CPU limit
 #   description: Number of CPUs available for the application (in millicore, 1 CPU = 1000m).
-#   value: "10000m"
+#   value: "10"
 #   required: true
 objects:
 

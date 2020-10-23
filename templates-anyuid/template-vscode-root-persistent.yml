@@ -42,16 +42,6 @@ parameters:
   # from: "[a-zA-Z0-9]{16}"
   # generate: expression
   required: true
-- name: MEMORY_LIMIT
-  displayName: Memory limit
-  description: Maximum RAM available for the VSCode application.
-  value: "5Gi"
-  required: true
-- name: CPU_LIMIT
-  displayName: CPU limit
-  description: Number of CPUs available for the VSCode application (in millicore, 1 CPU = 1000m).
-  value: "2000m"
-  required: true
 - name: STORAGE_NAME
   displayName: Storage name
   description: Name of the Persistent Volume Claim used for storage.
@@ -114,10 +104,13 @@ objects:
           ports:
           - containerPort: 8080
             protocol: TCP
-          resources:
-            limits:
-              cpu: "${CPU_LIMIT}"
-              memory: "${MEMORY_LIMIT}"
+          # resources:
+          #   limits:
+          #     cpu: '64'
+          #     memory: 200Gi
+          #   requests:
+          #     cpu: '2'
+          #     memory: 4Gi
           volumeMounts:
           - name: data
             mountPath: "/home/coder/project"

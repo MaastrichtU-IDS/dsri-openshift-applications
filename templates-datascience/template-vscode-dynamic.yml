@@ -52,16 +52,16 @@ parameters:
   - name: STORAGE_SIZE
     description: Persistent Volume Claim Storage space
     value: 10Gi
-  - name: MEMORY_LIMIT
-    displayName: Memory limit
-    description: Maximum RAM available for the VSCode application.
-    value: "5Gi"
-    required: true
-  - name: CPU_LIMIT
-    displayName: CPU limit
-    description: Number of CPUs available for the VSCode application (in millicore, 1 CPU = 1000m).
-    value: "2000m"
-    required: true
+  # - name: MEMORY_LIMIT
+  #   displayName: Memory limit
+  #   description: Maximum RAM available for the VSCode application.
+  #   value: "5Gi"
+  #   required: true
+  # - name: CPU_LIMIT
+  #   displayName: CPU limit
+  #   description: Number of CPUs available for the VSCode application (in millicore, 1 CPU = 1000m).
+  #   value: "2000m"
+  #   required: true
 
 objects:
   - apiVersion: image.openshift.io/v1
@@ -130,10 +130,13 @@ objects:
               ports:
                 - containerPort: 9000
                   protocol: TCP
-              resources:
-                limits:
-                  cpu: "${CPU_LIMIT}"
-                  memory: "${MEMORY_LIMIT}"
+              # resources:
+              #   requests: 
+              #     cpu: "${CPU_LIMIT}"
+              #     memory: "${MEMORY_LIMIT}"
+              #   limits:
+              #     cpu: "128"
+              #     memory: "300Gi"
               volumeMounts:
                 - mountPath: /home/coder/certs
                   name: ${NAME}-certs
