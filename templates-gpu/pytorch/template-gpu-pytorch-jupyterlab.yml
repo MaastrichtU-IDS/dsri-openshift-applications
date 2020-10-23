@@ -104,9 +104,8 @@ objects:
         - name: data
           persistentVolumeClaim:
             claimName: "${PVC_NAME}"
-        - name: dshm
-          emptyDir:
-            medium: Memory            
+        # - name: dshm
+        #   emptyDir: {}    
         containers:
         - name: pytorch-container
           # image: nvidia-pytorch-gpu:19.12-py3
@@ -130,8 +129,8 @@ objects:
           - name: data
             mountPath: "/workspace/notebooks"
             subPath: "${PVC_SUBPATH}"
-          - name: dshm
-            mountPath: /dev/shm
+          # - name: dshm
+          #   mountPath: /dev/shm
           
           # env:
           # - name: PASSWORD

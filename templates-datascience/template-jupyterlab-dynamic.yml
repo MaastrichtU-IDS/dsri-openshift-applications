@@ -135,9 +135,12 @@ objects:
           - containerPort: 4041
             protocol: TCP
           resources:
-            limits:
+            requests: 
               cpu: "${CPU_LIMIT}"
               memory: "${MEMORY_LIMIT}"
+            limits:
+              cpu: "128"
+              memory: "250Gi"
           env:
           - name: JUPYTER_NOTEBOOK_PASSWORD
             value: "${PASSWORD}"

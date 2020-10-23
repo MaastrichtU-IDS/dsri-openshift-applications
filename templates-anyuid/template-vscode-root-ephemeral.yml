@@ -30,6 +30,11 @@ parameters:
     URL.
   value: vscode
   required: true
+- name: APPLICATION_IMAGE
+  displayName: Docker image for the application
+  description: Use images based on codercom/code-server:latest
+  value: ghcr.io/maastrichtu-ids/vscode-server:latest
+  required: true
 - name: PASSWORD
   displayName: Password
   description: The password to access the VSCode application
@@ -96,8 +101,7 @@ objects:
           emptyDir: {}
         containers:
         - name: vscode-container
-          # image: codercom/code-server:latest
-          image: ghcr.io/maastrichtu-ids/vscode-server:latest
+          image: ${APPLICATION_IMAGE}
           ports:
           - containerPort: 8080
             protocol: TCP
