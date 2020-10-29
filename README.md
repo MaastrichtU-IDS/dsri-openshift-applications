@@ -89,3 +89,7 @@ Convert JSON to YAML: https://www.json2yaml.com
   * See [their template](https://raw.githubusercontent.com/jupyter/docker-stacks/master/examples/source-to-image/templates.json)
 
 * JupyterHub with GitHub OAuth template based on [jackfrost373/jupyter-root](https://github.com/jackfrost373/jupyter-root) and https://github.com/jupyter-on-openshift/jupyterhub-quickstart
+
+## Contribute
+
+Contributions are welcome! See the [guidelines to contribute 👨‍💻](/CONTRIBUTING.md).
