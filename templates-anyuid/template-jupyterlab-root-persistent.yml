@@ -79,7 +79,8 @@ objects:
     - name: latest
       from:
         kind: DockerImage
-        name: umids/jupyterlab:latest
+        name: ghcr.io/vemonet/jupyterlab:latest
+        # name: umids/jupyterlab:latest
     lookupPolicy:
       local: true
 
