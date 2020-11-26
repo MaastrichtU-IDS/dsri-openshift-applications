@@ -35,8 +35,7 @@ parameters:
   required: true
 - name: PASSWORD
   displayName: RStudio password
-  description: The password of the RStudio user. It will be stored securely in Resources
-    > Secrets and cannot be read.
+  description: The password of the RStudio user. 
   from: "[a-zA-Z0-9]{16}"
   generate: expression
   required: true
