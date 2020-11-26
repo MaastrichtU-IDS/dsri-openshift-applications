@@ -34,8 +34,7 @@ parameters:
   required: true
 - name: PASSWORD
   displayName: Notebook password
-  description: The password of the Jupyter Notebook. It will be stored securely in
-    Resources > Secrets and cannot be read.
+  description: The password of the Jupyter Notebook.
   from: "[a-zA-Z0-9]{16}"
   generate: expression
   required: true
