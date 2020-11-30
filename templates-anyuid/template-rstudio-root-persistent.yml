@@ -51,8 +51,8 @@ parameters:
   required: true
 - name: STORAGE_FOLDER
   displayName: Storage folder
-  description: Path to the folder used for storage in the the Persistent Volume Claim.
-  value: my-application
+  description: Path to the folder used to store your application data in the the Persistent Volume Claim (leave empty to use the root folder of the storage)
+  value: rstudio-root
   required: false
 - name: ENABLE_ROOT
   displayName: Enable Root

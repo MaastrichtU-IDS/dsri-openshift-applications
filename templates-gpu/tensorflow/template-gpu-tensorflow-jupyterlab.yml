@@ -55,16 +55,15 @@ parameters:
 #   description: Name of the Docker image used to run jupyter lab on DSRI GPUs
 #   value: 'nvcr.io/nvidia/tensorflow:19.11-tf2-py3'
 #   required: true
-- name: PVC_NAME
+- name: STORAGE_NAME
   displayName: Storage name
   description: Name of the Persistent Volume Claim used for storage.
   value: pvc-mapr-projects-myproject
   required: true
-- name: PVC_SUBPATH
-  displayName: Storage subpath
-  description: Subpath in the the Persistent Volume Claim where the Git repository
-    provided will be cloned.
-  value: folder-path-in-pvc
+- name: STORAGE_FOLDER
+  displayName: Storage folder
+  description: Path to the folder used to store your application data in the the Persistent Volume Claim (leave empty to use the root folder of the storage)
+  value: gpu-tensorflow-jupyterlab
   required: false
 - name: GPU_LIMIT
   displayName: Number of GPU assigned
@@ -132,7 +131,7 @@ objects:
             volumeMounts:
               - name: workdir
                 mountPath: /workspace/notebooks
-                subPath: ${PVC_SUBPATH}
+                subPath: ${STORAGE_FOLDER}
             env:
               - name: JUPYTER_TOKEN
                 value: ${JUPYTER_TOKEN}
@@ -144,7 +143,7 @@ objects:
         volumes:
           - name: workdir
             persistentVolumeClaim:
-              claimName: ${PVC_NAME}
+              claimName: ${STORAGE_NAME}
     selector:
       app: ${APPLICATION_NAME}
       deploymentconfig: ${APPLICATION_NAME}

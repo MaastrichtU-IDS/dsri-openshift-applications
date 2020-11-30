@@ -43,10 +43,8 @@ parameters:
   value: pvc-mapr-projects-myproject
   required: true
 - name: STORAGE_FOLDER
-  displayName: Storage subpath
-  description: Subpath in the the Persistent Volume Claim that will be exposed by the filebrowser.
-    Let it empty to use the Root folder of the persistent volume.
-  value: folder-path-in-pvc
+  displayName: Storage folder
+  description: Path to the folder used to store your application data in the the Persistent Volume Claim (leave empty to use the root folder of the storage)
   required: false
 objects:
     
