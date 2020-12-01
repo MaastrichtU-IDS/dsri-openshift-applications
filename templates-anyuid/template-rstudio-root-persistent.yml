@@ -2,7 +2,7 @@
 kind: ImageStream
 apiVersion: image.openshift.io/v1
 metadata:
-  name: rstudio-root-persistent
+  name: rstudio-root
   labels:
     template: rstudio-root-persistent
 spec:
@@ -42,7 +42,7 @@ parameters:
   displayName: Application name
   description: Must be unique in the project. It will be used to generate the application
     URL.
-  value: rstudio
+  value: rstudio-root
   required: true
 - name: APPLICATION_USERNAME
   displayName: RStudio username
