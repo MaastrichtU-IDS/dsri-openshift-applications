@@ -13,10 +13,10 @@ cd dsri-openshift-applications
 
 ### Data science templates
 
-Containers running as non root, without sudo privileges
+Containers running as non root, without `sudo` privileges
 
 ```bash
-for template in $( ls templates-datascience/*.yml ); do oc apply -f ${template} ; done
+for template in $( ls templates-restricted/*.yml ); do oc apply -f ${template} ; done
 ```
 
 ### Anyuid templates
