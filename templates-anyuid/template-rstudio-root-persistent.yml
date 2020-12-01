@@ -107,7 +107,7 @@ objects:
         - rstudio-container
         from:
           kind: ImageStreamTag
-          name: rstudio-root-persistent-${APPLICATION_NAME}:latest
+          name: rstudio-root:latest
     replicas: 1
     selector:
       app: "${APPLICATION_NAME}"
