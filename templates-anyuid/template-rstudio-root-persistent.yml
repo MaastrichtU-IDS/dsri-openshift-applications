@@ -10,7 +10,8 @@ spec:
   - name: latest
     from:
       kind: DockerImage
-      name: rocker/rstudio:latest
+      name: ghcr.io/maastrichtu-ids/rstudio:latest
+      # name: rocker/rstudio:latest
   lookupPolicy:
     local: true
 ---

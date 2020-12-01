@@ -28,7 +28,7 @@ parameters:
   displayName: Application name
   description: Must be unique in the project. It will be used to generate the application
     URL.
-  value: vscode
+  value: vscode-root
   required: true
 - name: APPLICATION_IMAGE
   displayName: Docker image for the application
