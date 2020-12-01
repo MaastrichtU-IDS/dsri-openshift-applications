@@ -420,7 +420,7 @@ objects:
       c.KubeSpawner.http_timeout = 200
       c.KubeSpawner.environment = { 'JUPYTER_ENABLE_LAB': 'yes' }
 
-      # Set user authentication
+      # Set user authentication https://jupyterhub.readthedocs.io/en/stable/reference/authenticators.html
       from oauthenticator.github import GitHubOAuthenticator
       c.JupyterHub.authenticator_class = GitHubOAuthenticator
 

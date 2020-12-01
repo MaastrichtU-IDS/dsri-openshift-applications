@@ -1,4 +1,19 @@
 ---
+kind: ImageStream
+apiVersion: image.openshift.io/v1
+metadata:
+  name: filebrowser
+  labels:
+    template: filebrowser
+spec:
+  tags:
+  - name: latest
+    from:
+      kind: DockerImage
+      name: filebrowser/filebrowser:latest
+  lookupPolicy:
+    local: true
+---
 kind: Template
 apiVersion: template.openshift.io/v1
 metadata:
@@ -47,21 +62,6 @@ parameters:
   description: Path to the folder used to store your application data in the the Persistent Volume Claim (leave empty to use the root folder of the storage)
   required: false
 objects:
-    
-# - kind: ImageStream
-#   apiVersion: image.openshift.io/v1
-#   metadata:
-#     name: filebrowser-${APPLICATION_NAME}
-#     labels:
-#       app: "${APPLICATION_NAME}"
-#   spec:
-#     tags:
-#     - name: latest
-#       from:
-#         kind: DockerImage
-#         name: filebrowser/filebrowser:latest
-#     lookupPolicy:
-#       local: true
 
 - kind: DeploymentConfig
   apiVersion: apps.openshift.io/v1
@@ -89,7 +89,7 @@ objects:
             claimName: "${STORAGE_NAME}"
         containers:
         - name: filebrowser-container
-          image: filebrowser/filebrowser:latest
+          image: filebrowser:latest
           ports:
           - containerPort: 80
             protocol: TCP
