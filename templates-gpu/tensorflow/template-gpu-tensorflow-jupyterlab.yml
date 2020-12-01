@@ -23,7 +23,7 @@ metadata:
     description: |-
       Start JupyterLab to run Tensorflow using GPUs with the root user. 
     
-      Persistent storage in /workspace/notebooks in the container.
+      📂 Use the `/workspace/notebooks` folder (workspace of the JupyterLab UI) to store your data in the existing persistent storage
 
       🔒 You need root containers enabled (aka. anyuid) in your project to start this application.
     iconClass: icon-python

@@ -12,9 +12,9 @@ metadata:
     description: |-
       Starts RStudio Server with Shiny server.
 
-      💾 Dynamic storage: data will be stored in a persistent storage automatically created.
+      📂 Use the `/mnt/APPLICATION_NAME` folder (workspace of the RStudio UI) to store your data in the persistent storage automatically created
 
-      You will not be able to install packages in the started application (e.g. with apt-get or yum)
+      You will not be able to install system packages after the application has started (e.g. with apt-get or yum)
     iconClass: icon-play
     openshift.io/documentation-url: https://github.com/CSCfi/rstudio-openshift
     openshift.io/support-url: https://www.csc.fi/contact-info

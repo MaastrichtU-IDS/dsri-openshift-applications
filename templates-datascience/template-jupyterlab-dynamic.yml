@@ -9,6 +9,8 @@ metadata:
     openshift.io/display-name: JupyterLab (Dynamic)
     description: |-
       Start JupyterLab images with regular 'jovyan' user, without sudo privileges. 
+
+      📂 Use the `/home/jovyan` folder (workspace of the JupyterLab UI) to store your data in the persistent storage automatically created
       
       You can use any image based on the official Jupyter docker stack: https://github.com/jupyter/docker-stacks
       - jupyter/scipy-notebook
@@ -21,8 +23,6 @@ metadata:
       Or build your own 📦
 
       Once JupyterLab is deployed you can install pip packages and JupyterLab extensions, but nothing that requires root privileges (such as installing apt or yum packages)
-
-      💾 Dynamic storage: data will be stored in a persistent storage automatically created.
     iconClass: icon-python
     tags: python,jupyter,notebook,ephemeral
     openshift.io/provider-display-name: Institute of Data Science, UM

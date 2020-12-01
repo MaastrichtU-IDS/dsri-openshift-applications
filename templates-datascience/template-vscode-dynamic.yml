@@ -13,14 +13,14 @@ metadata:
     description: |
       A distribution of Coder's VisualStudio Code in browser designed to work for CNCF-compliant orchestators.
 
+      📂 Use the `/home/coder/projects` folder (workspace of the VSCode UI) to store your data in the persistent storage automatically created
+
       Already installed:
       - Python
       - Java 11
       - NodeJS
-      
-      💾 Dynamic storage: data will be stored in a persistent storage automatically created.
 
-      You will not be able to install packages in the started application (e.g. with apt-get or yum)
+      You will not be able to install system packages after the application has started (e.g. with apt-get or yum)
     tags: visualstudio,vscode,dynamic
     iconClass: icon-kubevirt
     openshift.io/provider-display-name: Institute of Data Science, UM

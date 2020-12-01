@@ -26,7 +26,7 @@ metadata:
 
       Once JupyterLab is deployed you can install pip packages and JupyterLab extensions, but nothing that requires root privileges (such as installing apt or yum packages)
 
-      💾 Dynamic storage: data from users notebooks will be stored in a persistent storage automatically created.
+      📂 Use the `/home/jovyan` folder (workspace of the VSCode UI) to store your data in the persistent storage automatically created
     iconClass: icon-github
     tags: jupyterhub,python,jupyter,notebook,dynamic
     openshift.io/provider-display-name: Institute of Data Science, UM

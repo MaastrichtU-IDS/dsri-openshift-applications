@@ -6,13 +6,13 @@ metadata:
   annotations:
     openshift.io/display-name: VisualStudio Code with root user (Persistent)
     description: |-
-      Start VisualStudio Code server with the 'coder' user which has root (sudo) permissions.
+      Start VisualStudio Code server with the 'coder' user which has root permissions (sudo) 
+
+      📂 Use the `/home/coder/project` folder (workspace of the VSCode UI) to store your data in the existing persistent storage
       
       Python and Java 11 already installed. You can install packages with 'apt-get' after starting the server.
 
       Deployed using the code-server Docker image: https://github.com/orgs/MaastrichtU-IDS/packages/container/package/vscode-server
-
-      🗄️ Data stored on an existing persistent storage in the specified folder
 
       🔒 You need root containers enabled (aka. anyuid) in your project to start this application.
     iconClass: icon-kubevirt

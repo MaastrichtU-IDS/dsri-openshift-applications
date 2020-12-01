@@ -22,11 +22,12 @@ metadata:
   annotations:
     openshift.io/display-name: RStudio with root user (Persistent)
     description: |-
-      Start RStudio with the 'rstudio' user which has root (sudo) permissions.
-      
-      Uses rocker RStudio image: https://hub.docker.com/r/rocker/rstudio/
+      Start RStudio with the 'rstudio' user which has root permissions (sudo).
 
-      🗄️ Data stored on an existing persistent storage in the specified folder
+      📂 Use the `/home/rstudio` folder (workspace of the RStudio UI) to store your data in the existing persistent storage
+      
+      This template uses rocker RStudio image hosted in the GitHub Container Registry: ghcr.io/maastrichtu-ids/rstudio
+      See documentation at https://hub.docker.com/r/rocker/rstudio/
 
       🔒 You need root containers enabled (aka. anyuid) in your project to start this application.
     iconClass: icon-play
@@ -43,11 +44,6 @@ parameters:
   description: Must be unique in the project. It will be used to generate the application
     URL.
   value: rstudio-root
-  required: true
-- name: APPLICATION_USERNAME
-  displayName: RStudio username
-  description: Default user is rstudio.
-  value: rstudio
   required: true
 - name: PASSWORD
   displayName: RStudio password
@@ -70,13 +66,6 @@ parameters:
   description: Path to the folder used to store your application data in the the Persistent Volume Claim (leave empty to use the root folder of the storage)
   value: rstudio-root
   required: false
-- name: ENABLE_ROOT
-  displayName: Enable Root
-  description: Enabled by default. If false, the RStudio user does not have access
-    to root in the UI, such that users cannot install binary libraries with apt-get
-    without first entering the container.
-  value: 'TRUE'
-  required: true
 objects:
 - apiVersion: v1
   kind: Secret
@@ -140,18 +129,18 @@ objects:
           #     memory: 4Gi
           volumeMounts:
           - name: data
-            mountPath: "/home/${APPLICATION_USERNAME}"
+            mountPath: "/home/rstudio"
             subPath: "${STORAGE_FOLDER}"
           env:
           - name: USER
-            value: "${APPLICATION_USERNAME}"
+            value: "rstudio"
           - name: PASSWORD
             valueFrom:
               secretKeyRef:
                 key: application-password
                 name: "${APPLICATION_NAME}"
           - name: ROOT
-            value: "${ENABLE_ROOT}"
+            value: "TRUE"
         automountServiceAccountToken: false
 
 - kind: Service

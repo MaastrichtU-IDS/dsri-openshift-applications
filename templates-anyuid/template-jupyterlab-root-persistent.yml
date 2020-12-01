@@ -7,14 +7,14 @@ metadata:
     openshift.io/display-name: JupyterLab with root user (Persistent)
     description: |-
       Start JupyterLab with the 'root' user using the image defined at https://github.com/vemonet/Jupyterlab
+
+      📂 Use the `/notebooks` folder (workspace of the JupyterLab UI) to store your data in the existing persistent storage
       
       You can provide the URL to a GitHub/GitLab repository to be copied in the notebook automatically.
       The container will install requirements from files present at the root of the git repository (in this order):
       - packages.txt: install apt-get packages
       - requirements.txt: install pip packages
       - extensions.txt: install Jupyterlab extensions
-
-      🗄️ Data stored on an existing persistent storage in the specified folder
 
       🔒 You need root containers enabled (aka. anyuid) in your project to start this application.
     iconClass: icon-python

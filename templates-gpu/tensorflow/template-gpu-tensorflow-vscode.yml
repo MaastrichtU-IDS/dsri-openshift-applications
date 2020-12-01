@@ -23,7 +23,7 @@ metadata:
     description: |-
       Start VisualStudio Code with Tensorflow using GPUs with the root user.
       
-      Persistent storage in /root in the container.
+      📂 Use the `/root` folder (workspace of the VSCode UI) to store your data in the existing persistent storage
 
       🔒 You need root containers enabled (aka. anyuid) in your project to start this application.
     iconClass: icon-kubevirt

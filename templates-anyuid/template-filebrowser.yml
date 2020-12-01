@@ -23,6 +23,8 @@ metadata:
     description: |-
       Deploy a filebrowser on your persistent volume. This will provide a web UI to upload and download data to your DSRI persistent volume.
 
+      📂 Use the `/srv` folder in the container (workspace of the Filebrowser UI) to store your data in the existing persistent storage
+
       🔑 Default credentials are
       - login: admin
       - password: admin
