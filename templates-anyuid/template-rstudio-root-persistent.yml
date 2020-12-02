@@ -66,6 +66,11 @@ parameters:
   description: Path to the folder used to store your application data in the the Persistent Volume Claim (leave empty to use the root folder of the storage)
   value: rstudio-root
   required: false
+- name: OPENBLAS_NUM_THREADS
+  displayName: Number of threads for OpenBLAS
+  description: Restricting the number of thread allocated to OpenBLAS can speed up computations using OpenBLAS (leave empty otherwise)
+  value: ""
+  required: false
 objects:
 - apiVersion: v1
   kind: Secret
@@ -141,6 +146,8 @@ objects:
                 name: "${APPLICATION_NAME}"
           - name: ROOT
             value: "TRUE"
+          - name: OPENBLAS_NUM_THREADS
+            value: "${OPENBLAS_NUM_THREADS}"
         automountServiceAccountToken: false
 
 - kind: Service
