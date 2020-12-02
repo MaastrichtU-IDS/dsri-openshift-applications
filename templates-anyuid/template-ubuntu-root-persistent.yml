@@ -1,0 +1,159 @@
+---
+kind: ImageStream
+apiVersion: image.openshift.io/v1
+metadata:
+  name: ubuntu-root
+  labels:
+    template: ubuntu-root-persistent
+spec:
+  tags:
+  - name: latest
+    from:
+      kind: DockerImage
+      name: ubuntu:latest
+      # name: ghcr.io/maastrichtu-ids/ubuntu:latest
+  lookupPolicy:
+    local: true
+---
+kind: Template
+apiVersion: template.openshift.io/v1
+metadata:
+  name: ubuntu-root-persistent
+  annotations:
+    openshift.io/display-name: Ubuntu with root user (Persistent)
+    description: |-
+      Start ubuntu with the 'root' user which has sudo permissions to install anything.
+
+      📂 Use the `/root` folder (home of the root user) to store your data in the existing persistent storage
+      🔗 We enabled the port 8080 in the Ubuntu container if you need to deploy applications
+      
+      This template uses the Ubuntu image hosted on DockerHub, see its documentation at https://hub.docker.com/r/ubuntu/
+
+      🔒 You need root containers enabled (aka. anyuid) in your project to start this application.
+    iconClass: icon-ubuntu
+    tags: ubuntu,root,persistent
+    openshift.io/provider-display-name: Institute of Data Science, UM
+    openshift.io/documentation-url: https://maastrichtu-ids.github.io/dsri-documentation/docs/deploy-additional-services
+    openshift.io/support-url: https://maastrichtu-ids.github.io/dsri-documentation/help
+    template.openshift.io/bindable: 'false'
+labels:
+  template: ubuntu-root-persistent
+message: |-
+  A Ubuntu pod has been scheduled for creation in your project, and should be soon available.
+  Building images takes some minutes to complete, so please be patient. You can follow progress on your projects overview page.
+
+  You can use `oc get pods` to get the pod ID and connect using your local terminal `oc rsh POD_ID`
+  Or use the terminal tab in the Ubuntu pod view of the OpenShift web UI
+parameters:
+- name: APPLICATION_NAME
+  displayName: Application name
+  description: Must be unique in the project. It will be used to generate the application
+    URL.
+  value: ubuntu-root
+  required: true
+- name: APPLICAGE_IMAGE
+  displayName: Application Docker image
+  description: The default `ubuntu-root` is the latest Ubuntu image from DockerHub. Please use images from GitHub Containers or quay.io
+  value: ubuntu-root:latest
+  required: true
+- name: STORAGE_NAME
+  displayName: Storage name
+  description: Name of the Persistent Volume Claim used for storage.
+  value: pvc-mapr-projects-myproject
+  required: true
+- name: STORAGE_FOLDER
+  displayName: Storage folder
+  description: Path to the folder used to store your application data in the the Persistent Volume Claim (leave empty to use the root folder of the storage)
+  value: ubuntu-root
+  required: false
+objects:
+
+- kind: DeploymentConfig
+  apiVersion: apps.openshift.io/v1
+  metadata:
+    name: "${APPLICATION_NAME}"
+    labels:
+      app: "${APPLICATION_NAME}"
+  spec:
+    strategy:
+      type: Recreate
+    triggers:
+    - type: ConfigChange
+    - type: ImageChange
+      imageChangeParams:
+        automatic: true
+        containerNames:
+        - ubuntu-container
+        from:
+          kind: ImageStreamTag
+          name: ubuntu-root:latest
+    replicas: 1
+    selector:
+      app: "${APPLICATION_NAME}"
+      deploymentconfig: "${APPLICATION_NAME}"
+    template:
+      metadata:
+        labels:
+          app: "${APPLICATION_NAME}"
+          deploymentconfig: "${APPLICATION_NAME}"
+      spec:
+        serviceAccountName: anyuid
+        nodeSelector:
+          dsri.unimaas.nl/cpu: 'true'
+        volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: "${STORAGE_NAME}"
+        containers:
+        - name: ubuntu-container
+          image: ubuntu-root:latest
+          ports:
+          - containerPort: 8080
+            protocol: TCP
+          # resources:
+          #   limits:
+          #     cpu: '64'
+          #     memory: 200Gi
+          #   requests:
+          #     cpu: '2'
+          #     memory: 4Gi
+          volumeMounts:
+          - name: data
+            # mountPath: "/data"
+            mountPath: "/root"
+            subPath: "${STORAGE_FOLDER}"
+        automountServiceAccountToken: false
+
+- kind: Service
+  apiVersion: v1
+  metadata:
+    name: "${APPLICATION_NAME}"
+    labels:
+      app: "${APPLICATION_NAME}"
+  spec:
+    ports:
+    - name: 8080-tcp
+      protocol: TCP
+      port: 8080
+      targetPort: 8080
+    selector:
+      app: "${APPLICATION_NAME}"
+      deploymentconfig: "${APPLICATION_NAME}"
+
+# - kind: Route
+#   apiVersion: route.openshift.io/v1
+#   metadata:
+#     name: "${APPLICATION_NAME}"
+#     labels:
+#       app: "${APPLICATION_NAME}"
+#   spec:
+#     host: ''
+#     to:
+#       kind: Service
+#       name: "${APPLICATION_NAME}"
+#       weight: 100
+#     port:
+#       targetPort: 8787-tcp
+#     tls:
+#       termination: edge
+#       insecureEdgeTerminationPolicy: Redirect
