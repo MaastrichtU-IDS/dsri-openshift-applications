@@ -68,8 +68,8 @@ parameters:
   required: false
 - name: OPENBLAS_NUM_THREADS
   displayName: Number of threads for OpenBLAS
-  description: Restricting the number of thread allocated to OpenBLAS can speed up computations using OpenBLAS (leave empty otherwise)
-  value: ""
+  description: Restricting the number of thread allocated to OpenBLAS can speed up computations using OpenBLAS (leave empty for default 64)
+  value: "1"
   required: false
 objects:
 - apiVersion: v1
