@@ -107,6 +107,7 @@ objects:
         containers:
         - name: ubuntu-container
           image: ubuntu-root:latest
+          command: [ "tail", "-f", "/dev/null"]
           ports:
           - containerPort: 8080
             protocol: TCP
