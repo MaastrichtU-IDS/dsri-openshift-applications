@@ -10,7 +10,7 @@ spec:
   - name: latest
     from:
       kind: DockerImage
-      name: filebrowser/filebrowser:latest
+      name: ghcr.io/maastrichtu-ids/filebrowser:v2.11.0
   lookupPolicy:
     local: true
 ---
