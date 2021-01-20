@@ -98,8 +98,8 @@ objects:
           deploymentconfig: "${APPLICATION_NAME}"
       spec:
         serviceAccountName: anyuid
-        nodeSelector:
-          dsri.unimaas.nl/cpu: 'true'
+        #nodeSelector:
+         # dsri.unimaas.nl/cpu: 'true'
         volumes:
         - name: data
           persistentVolumeClaim:
