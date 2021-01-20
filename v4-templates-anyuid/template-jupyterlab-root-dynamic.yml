@@ -45,16 +45,21 @@ parameters:
     in the workspace.
   # value: https://github.com/vemonet/translator-sparql-notebook
   required: false
-- name: STORAGE_NAME
-  displayName: Storage name
-  description: Name of the Persistent Volume Claim used for storage.
-  value: pvc-mapr-projects-myproject
+- name: STORAGE_SIZE
+  displayName: Storage size
+  description: Size of the storage used for the notebook (approximate).
+  value: 10Gi
   required: true
-- name: STORAGE_FOLDER
-  displayName: Storage folder
-  description: Path to the folder used to store your application data in the the Persistent Volume Claim (leave empty to use the root folder of the storage)
-  value: jupyterlab-root
-  required: false
+# - name: STORAGE_NAME
+#   displayName: Storage name
+#   description: Name of the Persistent Volume Claim used for storage.
+#   value: pvc-mapr-projects-myproject
+#   required: true
+# - name: STORAGE_FOLDER
+#   displayName: Storage folder
+#   description: Path to the folder used to store your application data in the the Persistent Volume Claim (leave empty to use the root folder of the storage)
+#   value: jupyterlab-root
+#   required: false
 objects:
 - apiVersion: v1
   kind: Secret
@@ -67,6 +72,19 @@ objects:
   stringData:
     application-password: "${PASSWORD}"
     
+- apiVersion: "v1"
+  kind: "PersistentVolumeClaim"
+  metadata:
+    name: ${APPLICATION_NAME}
+    labels:
+      app: "${APPLICATION_NAME}"
+  spec:
+    accessModes:
+      - "ReadWriteMany"
+    resources:
+      requests:
+        storage: ${STORAGE_SIZE}
+
 - kind: ImageStream
   apiVersion: image.openshift.io/v1
   metadata:
@@ -113,12 +131,15 @@ objects:
           deploymentconfig: "${APPLICATION_NAME}"
       spec:
         serviceAccountName: anyuid
-        nodeSelector:
-          dsri.unimaas.nl/cpu: 'true'
+        # nodeSelector:
+        #   dsri.unimaas.nl/cpu: 'true'
         volumes:
         - name: data
           persistentVolumeClaim:
-            claimName: "${STORAGE_NAME}"
+            claimName: "${APPLICATION_NAME}"
+        # - name: data
+        #   persistentVolumeClaim:
+        #     claimName: "${STORAGE_NAME}"
         containers:
         - name: jupyterlab-container
           image: jupyter-root-persistent-${APPLICATION_NAME}:latest
@@ -135,7 +156,7 @@ objects:
           volumeMounts:
           - name: data
             mountPath: "/notebooks"
-            subPath: "${STORAGE_FOLDER}"
+            # subPath: "${STORAGE_FOLDER}"
           env:
           - name: PASSWORD
             valueFrom:
