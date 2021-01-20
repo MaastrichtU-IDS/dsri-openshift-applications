@@ -2,7 +2,7 @@
 # $ oc new-app -f code-server-openshift-template.yaml -p URL=vscode.example.com -p CODER_PASSWORD=welcome2vscode
 ####### </ Jeffery Bagirimvano >
 
-apiVersion: v1
+apiVersion: template.openshift.io/v1
 kind: Template
 labels:
   template: "vscode-dynamic"
@@ -115,8 +115,8 @@ objects:
             app: ${NAME}
             deploymentconfig: ${NAME}
         spec:
-          nodeSelector:
-            dsri.unimaas.nl/cpu: 'true'
+          #nodeSelector:
+           # dsri.unimaas.nl/cpu: 'true'
           # hostname: ${CONTAINER_HOSTNAME}
           containers:
             - name: ${NAME}

@@ -231,8 +231,8 @@ objects:
         labels:
           app: rstudio
       spec:
-        nodeSelector:
-          dsri.unimaas.nl/cpu: 'true'
+        #nodeSelector:
+        #  dsri.unimaas.nl/cpu: 'true'
         volumes:
           - name: ${NAME}-secret-vol
             secret:

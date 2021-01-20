@@ -155,8 +155,8 @@ objects:
           app: "${APPLICATION_NAME}"
           deploymentconfig: "${APPLICATION_NAME}"
       spec:
-        nodeSelector:
-          dsri.unimaas.nl/cpu: 'true'
+        #nodeSelector:
+         # dsri.unimaas.nl/cpu: 'true'
         serviceAccountName: "${APPLICATION_NAME}-hub"
         initContainers:
         - name: wait-for-database

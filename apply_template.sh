@@ -1,0 +1,1 @@
+for template in $( ls templates-anyuid/*.yml ); do oc apply -f ${template} ; done
