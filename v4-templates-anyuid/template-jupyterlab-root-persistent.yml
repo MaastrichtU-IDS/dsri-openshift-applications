@@ -1,0 +1,180 @@
+---
+kind: Template
+apiVersion: template.openshift.io/v1
+metadata:
+  name: jupyterlab-root-persistent
+  annotations:
+    openshift.io/display-name: JupyterLab with root user (Persistent)
+    description: |-
+      Start JupyterLab with the 'root' user using the image defined at https://github.com/vemonet/Jupyterlab
+
+      📂 Use the `/notebooks` folder (workspace of the JupyterLab UI) to store your data in the existing persistent storage
+      
+      You can provide the URL to a GitHub/GitLab repository to be copied in the notebook automatically.
+      The container will install requirements from files present at the root of the git repository (in this order):
+      - packages.txt: install apt-get packages
+      - requirements.txt: install pip packages
+      - extensions.txt: install Jupyterlab extensions
+
+      🔒 You need root containers enabled (aka. anyuid) in your project to start this application.
+    iconClass: icon-python
+    tags: python,jupyter,notebook,root,persistent
+    openshift.io/provider-display-name: Institute of Data Science, UM
+    openshift.io/documentation-url: https://maastrichtu-ids.github.io/dsri-documentation/docs/deploy-jupyter
+    openshift.io/support-url: https://maastrichtu-ids.github.io/dsri-documentation/help
+    template.openshift.io/bindable: 'false'
+labels:
+  template: jupyterlab-root-persistent
+parameters:
+- name: APPLICATION_NAME
+  displayName: Application name
+  description: Must be unique in the project. It will be used to generate the application
+    URL.
+  value: jupyterlab-root
+  required: true
+- name: PASSWORD
+  displayName: Notebook password
+  description: The password of the Jupyter Notebook.
+  from: "[a-zA-Z0-9]{16}"
+  generate: expression
+  required: true
+- name: GIT_REPOSITORY_URL
+  displayName: Git repository URL
+  description: URL to the Git repository that will be cloned. Dependencies from the
+    requirements.txt will be installed at runtime, and the repository will be cloned
+    in the workspace.
+  # value: https://github.com/vemonet/translator-sparql-notebook
+  required: false
+- name: STORAGE_NAME
+  displayName: Storage name
+  description: Name of the Persistent Volume Claim used for storage.
+  value: pvc-mapr-projects-myproject
+  required: true
+- name: STORAGE_FOLDER
+  displayName: Storage folder
+  description: Path to the folder used to store your application data in the the Persistent Volume Claim (leave empty to use the root folder of the storage)
+  value: jupyterlab-root
+  required: false
+objects:
+- apiVersion: v1
+  kind: Secret
+  metadata:
+    annotations:
+      template.openshift.io/expose-password: "{.data['application-password']}"
+    name: "${APPLICATION_NAME}"
+    labels:
+      app: "${APPLICATION_NAME}"
+  stringData:
+    application-password: "${PASSWORD}"
+    
+- kind: ImageStream
+  apiVersion: image.openshift.io/v1
+  metadata:
+    name: jupyter-root-persistent-${APPLICATION_NAME}
+    labels:
+      app: "${APPLICATION_NAME}"
+  spec:
+    tags:
+    - name: latest
+      from:
+        kind: DockerImage
+        name: ghcr.io/vemonet/jupyterlab:latest
+        # name: umids/jupyterlab:latest
+    lookupPolicy:
+      local: true
+
+- kind: DeploymentConfig
+  apiVersion: apps.openshift.io/v1
+  metadata:
+    name: "${APPLICATION_NAME}"
+    labels:
+      app: "${APPLICATION_NAME}"
+  spec:
+    strategy:
+      type: Recreate
+    triggers:
+    - type: ConfigChange
+    - type: ImageChange
+      imageChangeParams:
+        automatic: true
+        containerNames:
+        - jupyterlab-container
+        from:
+          kind: ImageStreamTag
+          name: jupyter-root-persistent-${APPLICATION_NAME}:latest
+    replicas: 1
+    selector:
+      app: "${APPLICATION_NAME}"
+      deploymentconfig: "${APPLICATION_NAME}"
+    template:
+      metadata:
+        labels:
+          app: "${APPLICATION_NAME}"
+          deploymentconfig: "${APPLICATION_NAME}"
+      spec:
+        serviceAccountName: anyuid
+        nodeSelector:
+          dsri.unimaas.nl/cpu: 'true'
+        volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: "${STORAGE_NAME}"
+        containers:
+        - name: jupyterlab-container
+          image: jupyter-root-persistent-${APPLICATION_NAME}:latest
+          ports:
+          - containerPort: 8888
+            protocol: TCP
+          # resources:
+          #   limits:
+          #     cpu: '64'
+          #     memory: 200Gi
+          #   requests:
+          #     cpu: '2'
+          #     memory: 4Gi
+          volumeMounts:
+          - name: data
+            mountPath: "/notebooks"
+            subPath: "${STORAGE_FOLDER}"
+          env:
+          - name: PASSWORD
+            valueFrom:
+              secretKeyRef:
+                key: application-password
+                name: "${APPLICATION_NAME}"
+          - name: GIT_URL
+            value: "${GIT_REPOSITORY_URL}"
+        automountServiceAccountToken: false
+
+- kind: Service
+  apiVersion: v1
+  metadata:
+    name: "${APPLICATION_NAME}"
+    labels:
+      app: "${APPLICATION_NAME}"
+  spec:
+    ports:
+    - name: 8888-tcp
+      protocol: TCP
+      port: 8888
+      targetPort: 8888
+    selector:
+      app: "${APPLICATION_NAME}"
+      deploymentconfig: "${APPLICATION_NAME}"
+- kind: Route
+  apiVersion: route.openshift.io/v1
+  metadata:
+    name: "${APPLICATION_NAME}"
+    labels:
+      app: "${APPLICATION_NAME}"
+  spec:
+    host: ''
+    to:
+      kind: Service
+      name: "${APPLICATION_NAME}"
+      weight: 100
+    port:
+      targetPort: 8888-tcp
+    tls:
+      termination: edge
+      insecureEdgeTerminationPolicy: Redirect
