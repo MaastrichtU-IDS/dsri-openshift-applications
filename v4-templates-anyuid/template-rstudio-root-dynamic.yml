@@ -2,64 +2,54 @@
 kind: Template
 apiVersion: template.openshift.io/v1
 metadata:
-  name: jupyterlab-root-persistent
+  name: rstudio-root-dynamic
   annotations:
-    openshift.io/display-name: JupyterLab with root user (Persistent)
+    openshift.io/display-name: RStudio
     description: |-
-      Start JupyterLab with the 'root' user using the image defined at https://github.com/vemonet/Jupyterlab
+      Start RStudio with the rstudio user which has root permissions (sudo).
 
-      📂 Use the `/notebooks` folder (workspace of the JupyterLab UI) to store your data in the existing persistent storage
+      📂 Use the /home/rstudio folder (workspace of the RStudio UI) to store your data in a persistent storage automatically created.
       
-      You can provide the URL to a GitHub/GitLab repository to be copied in the notebook automatically.
-      The container will install requirements from files present at the root of the git repository (in this order):
-      - packages.txt: install apt-get packages
-      - requirements.txt: install pip packages
-      - extensions.txt: install Jupyterlab extensions
+      This template uses rocker RStudio image hosted in the GitHub Container Registry: ghcr.io/maastrichtu-ids/rstudio
+      See documentation at https://hub.docker.com/r/rocker/rstudio/
 
       🔒 You need root containers enabled (aka. anyuid) in your project to start this application.
-    iconClass: icon-python
-    tags: python,jupyter,notebook,root,persistent
+    iconClass: icon-play
+    tags: R,rstudio,root,persistent
     openshift.io/provider-display-name: Institute of Data Science, UM
-    openshift.io/documentation-url: https://maastrichtu-ids.github.io/dsri-documentation/docs/deploy-jupyter
+    openshift.io/documentation-url: https://maastrichtu-ids.github.io/dsri-documentation/docs/deploy-services#rstudio
     openshift.io/support-url: https://maastrichtu-ids.github.io/dsri-documentation/help
-    template.openshift.io/bindable: 'false'
+    # template.openshift.io/bindable: 'false'
 labels:
-  template: jupyterlab-root-persistent
+  template: rstudio-root-dynamic
 parameters:
 - name: APPLICATION_NAME
   displayName: Application name
   description: Must be unique in the project. It will be used to generate the application
     URL.
-  value: jupyterlab-root
+  value: rstudio-root
   required: true
 - name: PASSWORD
-  displayName: Notebook password
-  description: The password of the Jupyter Notebook.
+  displayName: RStudio password
+  description: The password of the RStudio user. 
   from: "[a-zA-Z0-9]{16}"
   generate: expression
   required: true
-- name: GIT_REPOSITORY_URL
-  displayName: Git repository URL
-  description: URL to the Git repository that will be cloned. Dependencies from the
-    requirements.txt will be installed at runtime, and the repository will be cloned
-    in the workspace.
-  # value: https://github.com/vemonet/translator-sparql-notebook
-  required: false
+# - name: APPLICATION_MEMORY
+#   displayName: Application memory
+#   description: Maximum RAM available for the application.
+#   value: 5Gi
+#   required: true
 - name: STORAGE_SIZE
   displayName: Storage size
   description: Size of the storage used for the notebook (approximate).
   value: 10Gi
   required: true
-# - name: STORAGE_NAME
-#   displayName: Storage name
-#   description: Name of the Persistent Volume Claim used for storage.
-#   value: pvc-mapr-projects-myproject
-#   required: true
-# - name: STORAGE_FOLDER
-#   displayName: Storage folder
-#   description: Path to the folder used to store your application data in the the Persistent Volume Claim (leave empty to use the root folder of the storage)
-#   value: jupyterlab-root
-#   required: false
+- name: OPENBLAS_NUM_THREADS
+  displayName: Number of threads for OpenBLAS
+  description: Restricting the number of thread allocated to OpenBLAS can speed up computations using OpenBLAS (leave empty for default 64)
+  value: "1"
+  required: false
 objects:
 - apiVersion: v1
   kind: Secret
@@ -71,7 +61,7 @@ objects:
       app: "${APPLICATION_NAME}"
   stringData:
     application-password: "${PASSWORD}"
-    
+
 - apiVersion: "v1"
   kind: "PersistentVolumeClaim"
   metadata:
@@ -88,15 +78,17 @@ objects:
 - kind: ImageStream
   apiVersion: image.openshift.io/v1
   metadata:
-    name: jupyter-root-persistent-${APPLICATION_NAME}
+    name: ${APPLICATION_NAME}
     labels:
       app: "${APPLICATION_NAME}"
+      template: rstudio-root-dynamic
   spec:
     tags:
     - name: latest
       from:
         kind: DockerImage
-        name: ghcr.io/vemonet/jupyterlab:latest
+        name: ghcr.io/maastrichtu-ids/rstudio:latest
+        # name: rocker/rstudio:latest
     lookupPolicy:
       local: true
 
@@ -115,10 +107,10 @@ objects:
       imageChangeParams:
         automatic: true
         containerNames:
-        - jupyterlab-container
+        - rstudio-container
         from:
           kind: ImageStreamTag
-          name: jupyter-root-persistent-${APPLICATION_NAME}:latest
+          name: ${APPLICATION_NAME}:latest
     replicas: 1
     selector:
       app: "${APPLICATION_NAME}"
@@ -130,20 +122,17 @@ objects:
           deploymentconfig: "${APPLICATION_NAME}"
       spec:
         serviceAccountName: anyuid
-        # nodeSelector:
-        #   dsri.unimaas.nl/cpu: 'true'
+        #nodeSelector:
+        #  dsri.unimaas.nl/cpu: 'true'
         volumes:
         - name: data
           persistentVolumeClaim:
             claimName: "${APPLICATION_NAME}"
-        # - name: data
-        #   persistentVolumeClaim:
-        #     claimName: "${STORAGE_NAME}"
         containers:
-        - name: jupyterlab-container
-          image: jupyter-root-persistent-${APPLICATION_NAME}:latest
+        - name: rstudio-container
+          image: ${APPLICATION_NAME}:latest
           ports:
-          - containerPort: 8888
+          - containerPort: 8787
             protocol: TCP
           # resources:
           #   limits:
@@ -154,16 +143,19 @@ objects:
           #     memory: 4Gi
           volumeMounts:
           - name: data
-            mountPath: "/notebooks"
-            # subPath: "${STORAGE_FOLDER}"
+            mountPath: "/home/rstudio"
           env:
+          - name: USER
+            value: "rstudio"
           - name: PASSWORD
             valueFrom:
               secretKeyRef:
                 key: application-password
                 name: "${APPLICATION_NAME}"
-          - name: GIT_URL
-            value: "${GIT_REPOSITORY_URL}"
+          - name: ROOT
+            value: "TRUE"
+          - name: OPENBLAS_NUM_THREADS
+            value: "${OPENBLAS_NUM_THREADS}"
         automountServiceAccountToken: false
 
 - kind: Service
@@ -174,13 +166,14 @@ objects:
       app: "${APPLICATION_NAME}"
   spec:
     ports:
-    - name: 8888-tcp
+    - name: 8787-tcp
       protocol: TCP
-      port: 8888
-      targetPort: 8888
+      port: 8787
+      targetPort: 8787
     selector:
       app: "${APPLICATION_NAME}"
       deploymentconfig: "${APPLICATION_NAME}"
+
 - kind: Route
   apiVersion: route.openshift.io/v1
   metadata:
@@ -194,7 +187,7 @@ objects:
       name: "${APPLICATION_NAME}"
       weight: 100
     port:
-      targetPort: 8888-tcp
+      targetPort: 8787-tcp
     tls:
       termination: edge
       insecureEdgeTerminationPolicy: Redirect

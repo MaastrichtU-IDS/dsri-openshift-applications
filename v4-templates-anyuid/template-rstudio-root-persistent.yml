@@ -20,7 +20,7 @@ apiVersion: template.openshift.io/v1
 metadata:
   name: rstudio-root-persistent
   annotations:
-    openshift.io/display-name: RStudio with root user (Persistent)
+    openshift.io/display-name: RStudio (using existing storage)
     description: |-
       Start RStudio with the 'rstudio' user which has root permissions (sudo).
 
