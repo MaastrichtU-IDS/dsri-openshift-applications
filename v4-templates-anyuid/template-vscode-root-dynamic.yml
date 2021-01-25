@@ -10,9 +10,13 @@ metadata:
 
       📂 Use the /home/coder/project folder (workspace of the VSCode UI) to store your data in the existing persistent storage
       
-      Python and Java 11 already installed. You can install packages with 'apt-get' after starting the server.
+      Python 3 and Java 11 already installed. You can install packages with 'apt-get' after starting the server.
 
       Deployed using the code-server Docker image: https://github.com/orgs/MaastrichtU-IDS/packages/container/package/code-server
+         images based on codercom/code-server:latest
+      Image based on codercom/code-server image, hosted in the GitHub Container Registry.
+      Visit https://github.com/MaastrichtU-IDS/code-server for more details and to customize the image
+      Visit original codercom image at https://hub.docker.com/r/codercom/code-server
 
       🔒 You need root containers enabled (aka. anyuid) in your project to start this application.
     iconClass: icon-kubevirt
@@ -30,11 +34,6 @@ parameters:
     URL.
   value: vscode-root
   required: true
-- name: APPLICATION_IMAGE
-  displayName: Docker image for the application
-  description: Use images based on codercom/code-server:latest
-  value: ghcr.io/maastrichtu-ids/code-server:latest
-  required: true
 - name: PASSWORD
   displayName: Password
   description: The password to access the VSCode application
@@ -46,6 +45,11 @@ parameters:
   displayName: Storage size
   description: Size of the storage used for the notebook (approximate).
   value: 10Gi
+  required: true
+- name: APPLICATION_IMAGE
+  displayName: Docker image for the application
+  description: See https://github.com/MaastrichtU-IDS/code-server for more details and to customize the image
+  value: ghcr.io/maastrichtu-ids/code-server:latest
   required: true
 
 objects:
@@ -83,7 +87,7 @@ objects:
     - name: latest
       from:
         kind: DockerImage
-        name: ghcr.io/maastrichtu-ids/code-server:latest
+        name: ${APPLICATION_IMAGE}
     lookupPolicy:
       local: true
 
@@ -125,7 +129,7 @@ objects:
             claimName: "${APPLICATION_NAME}"
         containers:
         - name: vscode-container
-          image: ${APPLICATION_IMAGE}
+          image: ${APPLICATION_IMAGE}:latest
           ports:
           - containerPort: 8080
             protocol: TCP
