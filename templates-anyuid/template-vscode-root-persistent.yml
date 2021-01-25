@@ -12,7 +12,7 @@ metadata:
       
       Python and Java 11 already installed. You can install packages with 'apt-get' after starting the server.
 
-      Deployed using the code-server Docker image: https://github.com/orgs/MaastrichtU-IDS/packages/container/package/vscode-server
+      Deployed using the code-server Docker image: https://github.com/orgs/MaastrichtU-IDS/packages/container/package/code-server
 
       🔒 You need root containers enabled (aka. anyuid) in your project to start this application.
     iconClass: icon-kubevirt
@@ -33,7 +33,7 @@ parameters:
 - name: APPLICATION_IMAGE
   displayName: Docker image for the application
   description: Use images based on codercom/code-server:latest
-  value: ghcr.io/maastrichtu-ids/vscode-server:latest
+  value: ghcr.io/maastrichtu-ids/code-server:latest
   required: true
 - name: PASSWORD
   displayName: Password

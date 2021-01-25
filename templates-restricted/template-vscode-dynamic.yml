@@ -30,7 +30,7 @@ metadata:
 parameters:
   - name: NAME
     description: Name of your application
-    value: vscode-server
+    value: code-server
     required: true
   # - name: CONTAINER_HOSTNAME
   #   description: Hostname of your container
