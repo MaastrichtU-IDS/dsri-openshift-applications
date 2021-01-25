@@ -10,8 +10,10 @@ spec:
   - name: latest
     from:
       kind: DockerImage
-      name: ubuntu:latest
-      # name: ghcr.io/maastrichtu-ids/ubuntu:latest
+      # name: ubuntu:latest
+      name: ghcr.io/maastrichtu-ids/ubuntu:latest
+  importPolicy:
+      scheduled: true
   lookupPolicy:
     local: true
 ---

@@ -12,8 +12,6 @@ metadata:
       
       Python 3 and Java 11 already installed. You can install packages with 'apt-get' after starting the server.
 
-      Deployed using the code-server Docker image: https://github.com/orgs/MaastrichtU-IDS/packages/container/package/code-server
-         images based on codercom/code-server:latest
       Image based on codercom/code-server image, hosted in the GitHub Container Registry.
       Visit https://github.com/MaastrichtU-IDS/code-server for more details and to customize the image
       Visit original codercom image at https://hub.docker.com/r/codercom/code-server
@@ -88,6 +86,8 @@ objects:
       from:
         kind: DockerImage
         name: ${APPLICATION_IMAGE}
+      importPolicy:
+        scheduled: true
     lookupPolicy:
       local: true
 

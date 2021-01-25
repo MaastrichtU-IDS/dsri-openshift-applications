@@ -63,6 +63,8 @@ objects:
       from:
         kind: DockerImage
         name: ghcr.io/maastrichtu-ids/filebrowser:v2.11.0
+      importPolicy:
+        scheduled: true
     lookupPolicy:
       local: true
 

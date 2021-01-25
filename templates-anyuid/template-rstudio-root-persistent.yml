@@ -12,6 +12,8 @@ spec:
       kind: DockerImage
       name: ghcr.io/maastrichtu-ids/rstudio:latest
       # name: rocker/rstudio:latest
+    importPolicy:
+      scheduled: true
   lookupPolicy:
     local: true
 ---
