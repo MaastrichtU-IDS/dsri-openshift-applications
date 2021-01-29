@@ -3,6 +3,8 @@ kind: Template
 apiVersion: template.openshift.io/v1
 metadata:
   name: data-stewardship-wizard
+  labels:
+      template: data-stewardship-wizard
   annotations:
     openshift.io/display-name: Data Stewardship Wizard
     description: |-
@@ -19,8 +21,8 @@ metadata:
       Visit https://github.com/vemonet/Jupyterlab for more details and to customize the image
 
       🔒 You need root containers enabled (aka. anyuid) in your project to start this application.
-    iconClass: icon-python
-    tags: python,jupyter,notebook,root,persistent
+    iconClass: icon-shadowman
+    tags: fair,data,management
     openshift.io/provider-display-name: Institute of Data Science, UM
     openshift.io/documentation-url: https://maastrichtu-ids.github.io/dsri-documentation/docs/deploy-jupyter
     openshift.io/support-url: https://maastrichtu-ids.github.io/dsri-documentation/help
@@ -99,13 +101,13 @@ objects:
 #         scheduled: true
 #     lookupPolicy:
 #       local: true
+
 - apiVersion: apps/v1
   kind: Deployment
   metadata:
+    name: rabbitmq
     labels:
       app: "${APPLICATION_NAME}"
-      io.kompose.service: rabbitmq    
-    name: rabbitmq
   spec:
     replicas: 1
     # strategy: {}
@@ -128,7 +130,7 @@ objects:
             value: guest
           image: rabbitmq:3.8.2-management
           name: rabbitmq
-          resources: {}
+          # resources: {}
         restartPolicy: Always
   # status: {}
 
