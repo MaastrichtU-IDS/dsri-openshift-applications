@@ -102,8 +102,10 @@ objects:
 #     lookupPolicy:
 #       local: true
 
-- apiVersion: apps/v1
-  kind: Deployment
+- kind: DeploymentConfig
+  apiVersion: apps.openshift.io/v1
+# - apiVersion: apps/v1
+#   kind: Deployment
   metadata:
     name: rabbitmq
     labels:
@@ -112,7 +114,7 @@ objects:
     replicas: 1
     # strategy: {}
     selector:
-      matchLabels:
+      # matchLabels:
         app: "${APPLICATION_NAME}"
         deployment: "${APPLICATION_NAME}"
     template:
@@ -121,18 +123,38 @@ objects:
           app: "${APPLICATION_NAME}"
           deployment: "${APPLICATION_NAME}"
       spec:
-        #serviceAccountName: anyuid
+        serviceAccountName: anyuid
         containers:
-        - env:
+        - name: rabbitmq
+          image: rabbitmq:3.8.2-management
+          env:
           - name: RABBITMQ_DEFAULT_PASS
             value: guest
           - name: RABBITMQ_DEFAULT_USER
             value: guest
-          image: rabbitmq:3.8.2-management
-          name: rabbitmq
+            
           # resources: {}
+          # THIS config SHOULD GO TO THE wizard server 
+          volumeMounts:
+            - name: config
+              mountPath: "engine-wizard/config/application.yml"
+        volumes:
+        - name: config
+          configMap:
+            name: "${APPLICATION_NAME}-cfg"
+            defaultMode: 420
         restartPolicy: Always
   # status: {}
+
+- kind: ConfigMap
+  apiVersion: v1
+  metadata:
+    name: "${APPLICATION_NAME}-cfg"
+    labels:
+      app: "${APPLICATION_NAME}"
+  data:
+    application.yml: |
+      URL=???
 
 # - kind: DeploymentConfig
 #   apiVersion: apps.openshift.io/v1

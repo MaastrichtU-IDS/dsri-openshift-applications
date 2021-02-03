@@ -6,19 +6,21 @@ metadata:
   annotations:
     openshift.io/display-name: JupyterLab with root user (Persistent)
     description: |-
-      Start JupyterLab with the 'root' user using the image defined at https://github.com/vemonet/Jupyterlab
+      Start JupyterLab with sudo (root) privileges
 
-      📂 Use the `/notebooks` folder (workspace of the JupyterLab UI) to store your data in the existing persistent storage
+      📂 Use the `/home/jovyan` folder (workspace of the JupyterLab UI) to store your data in the persistent storage
       
-      You can provide the URL to a GitHub/GitLab repository to be copied in the notebook automatically.
-      The container will install requirements from files present at the root of the git repository (in this order):
-      - packages.txt: install apt-get packages
-      - requirements.txt: install pip packages
-      - extensions.txt: install Jupyterlab extensions
+      You can use any image based on the official Jupyter docker stack: https://github.com/jupyter/docker-stacks
+      - jupyter/scipy-notebook
+      - jupyter/datascience-notebook (with Julia kernel)
+      - jupyter/tensorflow-notebook
+      - jupyter/r-notebook
+      - jupyter/pyspark-notebook
+      - jupyter/all-spark-notebook
+      - ghcr.io/maastrichtu-ids/jupyterlab-on-openshift (with SPARQL and Java kernels)
+      Or build your own 📦
 
-      Visit https://github.com/vemonet/Jupyterlab for more details and to customize the image
-
-      🔒 You need root containers enabled (aka. anyuid) in your project to start this application.
+      Visit https://github.com/MaastrichtU-IDS/jupyterlab-on-openshift for more details, and to customize the image
     iconClass: icon-python
     tags: python,jupyter,notebook,root,persistent
     openshift.io/provider-display-name: Institute of Data Science, UM
@@ -163,8 +165,12 @@ objects:
           #     memory: 4Gi
           volumeMounts:
           - name: data
-            mountPath: "/notebooks"
+            mountPath: "/home/jovyan"
             # subPath: "${STORAGE_FOLDER}"
+          securityContext:
+            # Run as root https://dev.to/techworld_with_nana/run-pod-with-root-privileges-41n9
+            allowPrivilegeEscalation: false
+            runAsUser: 0
           env:
           - name: PASSWORD
             valueFrom:
