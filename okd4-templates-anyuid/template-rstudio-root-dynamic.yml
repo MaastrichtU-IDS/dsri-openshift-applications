@@ -54,7 +54,7 @@ parameters:
 - name: APPLICATION_IMAGE
   displayName: Application Docker image
   description: See https://github.com/MaastrichtU-IDS/rstudio for more details and to customize the image
-  value: ghcr.io/maastrichtu-ids/rstudio:latest
+  value: ghcr.io/maastrichtu-ids/rstudio
   required: true
 objects:
 - apiVersion: v1

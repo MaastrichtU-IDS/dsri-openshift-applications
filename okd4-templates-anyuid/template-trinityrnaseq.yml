@@ -40,7 +40,7 @@ parameters:
 - name: APPLICATION_IMAGE
   displayName: Application Docker image
   description: See https://github.com/MaastrichtU-IDS/trinityrnaseq for more details on the image
-  value: ghcr.io/maastrichtu-ids/trinityrnaseq:latest
+  value: ghcr.io/maastrichtu-ids/trinityrnaseq
   required: true
 
 objects:

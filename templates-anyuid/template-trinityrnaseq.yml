@@ -42,6 +42,10 @@ parameters:
   description: See https://github.com/MaastrichtU-IDS/trinityrnaseq for more details on the image
   value: ghcr.io/maastrichtu-ids/trinityrnaseq:latest
   required: true
+- name: STORAGE_NAME
+  displayName: Storage name
+  description: Name of the Persistent Volume Claim used for storage.
+  value: pvc-mapr-projects-myproject
 
 objects:
 - apiVersion: "v1"
