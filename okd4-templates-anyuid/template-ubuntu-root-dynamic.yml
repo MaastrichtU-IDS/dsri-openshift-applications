@@ -13,7 +13,7 @@ metadata:
       
       Image based on official ubuntu image, hosted in the GitHub Container Registry.
       Visit https://github.com/MaastrichtU-IDS/ubuntu for more details on the image
-      Visit original codercom image at https://hub.docker.com/_/ubuntu
+      Visit original Ubuntu image at https://hub.docker.com/_/ubuntu
 
       🔒 You need root containers enabled (aka. anyuid) in your project to start this application.
     iconClass: icon-ubuntu
@@ -44,7 +44,7 @@ parameters:
 - name: APPLICATION_IMAGE
   displayName: Application Docker image
   description: See https://github.com/MaastrichtU-IDS/ubuntu for more details on the image
-  value: ghcr.io/maastrichtu-ids/ubuntu
+  value: ghcr.io/maastrichtu-ids/ubuntu:latest
   required: true
 
 objects:
@@ -74,8 +74,8 @@ objects:
       from:
         kind: DockerImage
         name: ${APPLICATION_IMAGE}
-      importPolicy:
-        scheduled: true
+      # importPolicy:
+      #   scheduled: true
     lookupPolicy:
       local: true
 
