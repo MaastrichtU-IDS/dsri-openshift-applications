@@ -273,8 +273,8 @@ objects:
           deploymentconfig: "${APPLICATION_NAME}-db"
       spec:
         # serviceAccountName: restricted
-        nodeSelector:
-          dsri.unimaas.nl/cpu: 'true'
+        # nodeSelector:
+        #   dsri.unimaas.nl/cpu: 'true'
         containers:
         - name: postgresql
           env:
@@ -433,7 +433,7 @@ objects:
       c.Authenticator.whitelist = { ${GITHUB_USERS} }
 
       # Set nodeSelector
-      c.KubeSpawner.node_selector = {'dsri.unimaas.nl/cpu': 'true'}
+      # c.KubeSpawner.node_selector = {'dsri.unimaas.nl/cpu': 'true'}
       c.KubeSpawner.supplemental_gids = ['100']
       # c.KubeSpawner.service_account = 'restricted'
 
