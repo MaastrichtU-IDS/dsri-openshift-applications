@@ -123,7 +123,7 @@ objects:
           app: "${APPLICATION_NAME}"
           deployment: "${APPLICATION_NAME}"
       spec:
-        serviceAccountName: anyuid
+        serviceAccountName: rabbitmq
         containers:
         - name: rabbitmq
           image: rabbitmq:3.8.2-management
@@ -132,7 +132,18 @@ objects:
             value: guest
           - name: RABBITMQ_DEFAULT_USER
             value: guest
-            
+          # serviceAccountName: anyuid
+          serviceAccountName: rabbitmq
+          # nodeSelector:
+          #   dsri.unimaas.nl/cpu: 'true'
+          securityContext:
+            runAsUser: 999
+            runAsGroup: 999
+            fsGroup: 2000
+            supplementalGroups:
+            - 999/1
+            uidRange:
+            - 0-999
           # resources: {}
           # THIS config SHOULD GO TO THE wizard server 
           volumeMounts:
@@ -154,7 +165,33 @@ objects:
       app: "${APPLICATION_NAME}"
   data:
     application.yml: |
-      URL=???
+      general:
+      clientUrl: http://localhost:8080
+      secret: b7zFNUhFYIFLmDSFKFkp0Bnp8Z3uWGnH
+      serviceToken: NlQSNbGvh7EtcpinGnHE9g91
+
+    database:
+      host: mongo
+      databaseName: wizard
+      port: 27017
+      authEnabled: false
+      username:
+      password:
+
+    messaging:
+      username: guest
+      password: guest
+
+    mail:
+      enabled: false
+      name:
+      email:
+      host:
+      port:
+      ssl:
+      authEnabled:
+      username:
+      password:
 
 # - kind: DeploymentConfig
 #   apiVersion: apps.openshift.io/v1
