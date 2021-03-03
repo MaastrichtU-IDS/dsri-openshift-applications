@@ -16,11 +16,13 @@ metadata:
 
       You will not be able to install system packages after the application has started (e.g. with apt-get or yum)
     iconClass: icon-play
-    openshift.io/documentation-url: https://github.com/CSCfi/rstudio-openshift
-    openshift.io/support-url: https://www.csc.fi/contact-info
+    #openshift.io/documentation-url: https://github.com/CSCfi/rstudio-openshift
+    #openshift.io/support-url: https://www.csc.fi/contact-info
     # openshift.io/long-description: 
     # openshift.io/provider-display-name: CSC
     openshift.io/provider-display-name: Institute of Data Science, UM
+    openshift.io/documentation-url: https://maastrichtu-ids.github.io/dsri-documentation/docs/deploy-rstudio#rstudio-with-shiny-server
+    openshift.io/support-url: https://maastrichtu-ids.github.io/dsri-documentation/help
     tags: R,rstudio,shiny,dynamic
     template.openshift.io/bindable: "false"
 
