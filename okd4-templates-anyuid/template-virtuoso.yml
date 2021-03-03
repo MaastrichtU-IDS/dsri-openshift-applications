@@ -14,7 +14,7 @@ metadata:
     iconClass: icon-3scale
     tags: triplestore,graph,database,rdf,sparql
     openshift.io/provider-display-name: Institute of Data Science, UM
-    openshift.io/documentation-url: https://maastrichtu-ids.github.io/dsri-documentation/docs
+    openshift.io/documentation-url: https://maastrichtu-ids.github.io/dsri-documentation/docs/deploy-database#start-virtuoso-triplestore
     openshift.io/support-url: https://maastrichtu-ids.github.io/dsri-documentation/help
 labels:
   template: virtuoso-triplestore
