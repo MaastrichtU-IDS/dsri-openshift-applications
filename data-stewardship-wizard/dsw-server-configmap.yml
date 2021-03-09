@@ -1,0 +1,36 @@
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: "data-stewardship-wizard-cfg"
+  labels:
+    app: "data-stewardship-wizard"
+data:
+# https://github.com/ds-wizard/dsw-server/blob/develop/dsw-server/config/application-test.yml.example
+  application.yml: |
+    general:
+    clientUrl: http://localhost:8080
+    secret: b7zFNUhFYIFLmDSFKFkp0Bnp8Z3uWGnH
+    serviceToken: NlQSNbGvh7EtcpinGnHE9g91
+
+    database:
+      host: mongo
+      databaseName: wizard
+      port: 27017
+      authEnabled: false
+      username:
+      password:
+
+    messaging:
+      username: guest
+      password: guest
+
+    mail:
+      enabled: false
+      name:
+      email:
+      host:
+      port:
+      ssl:
+      authEnabled:
+      username:
+      password:
