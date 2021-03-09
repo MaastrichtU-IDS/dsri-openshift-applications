@@ -5,7 +5,9 @@ metadata:
   labels:
     app: "data-stewardship-wizard"
 data:
-# https://github.com/ds-wizard/dsw-server/blob/develop/dsw-server/config/application-test.yml.example
+# Refer to the template.yml for latest version of the ConfigMap
+# https://github.com/ds-wizard/engine-backend/blob/develop/engine-wizard/config/application-test.yml.example
+# Docker: https://github.com/ds-wizard/dsw-deployment-example/tree/master/server
   application.yml: |
     general:
     clientUrl: http://localhost:8080

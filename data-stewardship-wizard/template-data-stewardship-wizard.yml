@@ -164,100 +164,116 @@ objects:
     labels:
       app: "${APPLICATION_NAME}"
   data:
+    # https://github.com/ds-wizard/engine-backend/blob/develop/engine-wizard/config/application-test.yml.example
+    # Docker: https://github.com/ds-wizard/dsw-deployment-example/tree/master/server
     application.yml: |
       general:
-      clientUrl: http://localhost:8080
-      secret: b7zFNUhFYIFLmDSFKFkp0Bnp8Z3uWGnH
-      serviceToken: NlQSNbGvh7EtcpinGnHE9g91
+        clientUrl: http://localhost:8080
+        secret: "b7zFNUhFYIFLmDSFKFkp0Bnp8Z3uWGnH"
+        serviceToken: "ids-token"
 
-    database:
-      host: mongo
-      databaseName: wizard
-      port: 27017
-      authEnabled: false
-      username:
-      password:
+      database:
+        host: mongo
+        databaseName: wizard
+        port: 27017
+        authEnabled: false
+        username:
+        password:
 
-    messaging:
-      username: guest
-      password: guest
+      messaging:
+        username: guest
+        password: guest
 
-    mail:
-      enabled: false
-      name:
-      email:
-      host:
-      port:
-      ssl:
-      authEnabled:
-      username:
-      password:
+      mail:
+        enabled: false
+        name:
+        email:
+        host:
+        port:
+        ssl:
+        authEnabled:
+        username:
+        password:
+    build-info.yml: |
+      name: Engine
+      version: 1.0.0
+      builtAt: 2017/10/25 19:50:20Z
+    localization.json: |
+      {}
+    integration.yml: ""
 
-# - kind: DeploymentConfig
-#   apiVersion: apps.openshift.io/v1
-#   metadata:
-#     name: "${APPLICATION_NAME}"
-#     labels:
-#       app: "${APPLICATION_NAME}"
-#   spec:
-#     strategy:
-#       type: Recreate
-#     triggers:
-#     - type: ConfigChange
-#     - type: ImageChange
-#       imageChangeParams:
-#         automatic: true
-#         containerNames:
-#         - jupyterlab-container
-#         from:
-#           kind: ImageStreamTag
-#           name: ${APPLICATION_NAME}:latest
-#     replicas: 1
-#     selector:
-#       app: "${APPLICATION_NAME}"
-#       deploymentconfig: "${APPLICATION_NAME}"
-#     template:
-#       metadata:
-#         labels:
-#           app: "${APPLICATION_NAME}"
-#           deploymentconfig: "${APPLICATION_NAME}"
-#       spec:
-#         serviceAccountName: anyuid
-#         # nodeSelector:
-#         #   dsri.unimaas.nl/cpu: 'true'
-#         volumes:
-#         - name: data
-#           persistentVolumeClaim:
-#             claimName: "${APPLICATION_NAME}"
-#         # - name: data
-#         #   persistentVolumeClaim:
-#         #     claimName: "${STORAGE_NAME}"
-#         containers:
-#         - name: jupyterlab-container
-#           image: ${APPLICATION_NAME}:latest
-#           ports:
-#           - containerPort: 8888
-#             protocol: TCP
-#           # resources:
-#           #   limits:
-#           #     cpu: '64'
-#           #     memory: 200Gi
-#           #   requests:
-#           #     cpu: '2'
-#           #     memory: 4Gi
-#           volumeMounts:
-#           - name: data
-#             mountPath: "/notebooks"
-#             # subPath: "${STORAGE_FOLDER}"
-#           env:
-#           - name: PASSWORD
-#             valueFrom:
-#               secretKeyRef:
-#                 key: application-password
-#                 name: "${APPLICATION_NAME}"
-#           - name: GIT_URL
-#             value: "${GIT_REPOSITORY_URL}"
-#         automountServiceAccountToken: false
+# Deploy the Wizard server
+- kind: DeploymentConfig
+  apiVersion: apps.openshift.io/v1
+  metadata:
+    name: "${APPLICATION_NAME}"
+    labels:
+      app: "${APPLICATION_NAME}"
+  spec:
+    strategy:
+      type: Recreate
+    triggers:
+    - type: ConfigChange
+    # - type: ImageChange
+    #   imageChangeParams:
+    #     automatic: true
+    #     containerNames:
+    #     - wizard-server
+    #     from:
+    #       kind: ImageStreamTag
+    #       name: ${APPLICATION_NAME}:latest
+    replicas: 1
+    selector:
+      app: "${APPLICATION_NAME}"
+      deploymentconfig: "${APPLICATION_NAME}"
+    template:
+      metadata:
+        labels:
+          app: "${APPLICATION_NAME}"
+          deploymentconfig: "${APPLICATION_NAME}"
+      spec:
+        serviceAccountName: anyuid
+        # nodeSelector:
+        #   dsri.unimaas.nl/cpu: 'true'
+        volumes:
+        - name: config
+          configMap:
+            name: data-stewardship-wizard-cfg
+            defaultMode: 420
+        # - name: data
+        #   persistentVolumeClaim:
+        #     claimName: "${APPLICATION_NAME}"
+        containers:
+        - name: wizard-server
+          image: datastewardshipwizard/wizard-server:latest
+          # image: ${APPLICATION_NAME}:latest
+          ports:
+          - containerPort: 8888
+            protocol: TCP
+          # resources:
+          #   limits:
+          #     cpu: '64'
+          #     memory: 200Gi
+          #   requests:
+          #     cpu: '2'
+          #     memory: 4Gi
+          volumeMounts:
+          - name: config
+            mountPath: /application/engine-wizard/config
+            # mountPath: /application/engine-wizard/config/application.yml
+          # - name: data
+          #   mountPath: "/data"
+          #   subPath: "${STORAGE_FOLDER}"
+
+          # env:
+          # - name: PASSWORD
+          #   valueFrom:
+          #     secretKeyRef:
+          #       key: application-password
+          #       name: "${APPLICATION_NAME}"
+          # - name: GIT_URL
+          #   value: "${GIT_REPOSITORY_URL}"
+        automountServiceAccountToken: false
 
 # - kind: Service
 #   apiVersion: v1
