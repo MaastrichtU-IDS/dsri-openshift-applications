@@ -202,6 +202,11 @@ objects:
       {}
     integration.yml: ""
 
+# To deploy the client:
+        # env:
+        #   - name: API_URL
+        #     value: "http://localhost:3000"
+
 # Deploy the Wizard server
 - kind: DeploymentConfig
   apiVersion: apps.openshift.io/v1
@@ -245,10 +250,10 @@ objects:
         #     claimName: "${APPLICATION_NAME}"
         containers:
         - name: wizard-server
-          image: datastewardshipwizard/wizard-server:latest
+          image: datastewardshipwizard/wizard-server:2.11.0
           # image: ${APPLICATION_NAME}:latest
           ports:
-          - containerPort: 8888
+          - containerPort: 3000
             protocol: TCP
           # resources:
           #   limits:
@@ -275,6 +280,29 @@ objects:
           #   value: "${GIT_REPOSITORY_URL}"
         automountServiceAccountToken: false
 
+
+# apiVersion: v1
+# kind: Service
+# metadata:
+#   name: wizard-server-3000
+#   namespace: data-stewardship-wizard
+#   labels:
+#     app: wizard-server
+#     app.kubernetes.io/component: wizard-server
+#     app.kubernetes.io/instance: wizard-server
+#     app.kubernetes.io/part-of: mongo-app
+#     app.openshift.io/runtime-version: 2.11.0
+# spec:
+#   ports:
+#     - name: 3000-tcp
+#       protocol: TCP
+#       port: 3000
+#       targetPort: 3000
+#   selector:
+#     app: wizard-server
+#     deploymentconfig: wizard-server
+
+
 # - kind: Service
 #   apiVersion: v1
 #   metadata:
@@ -283,10 +311,10 @@ objects:
 #       app: "${APPLICATION_NAME}"
 #   spec:
 #     ports:
-#     - name: 8888-tcp
+#     - name: 3000-tcp
 #       protocol: TCP
-#       port: 8888
-#       targetPort: 8888
+#       port: 3000
+#       targetPort: 3000
 #     selector:
 #       app: "${APPLICATION_NAME}"
 #       deploymentconfig: "${APPLICATION_NAME}"
@@ -303,7 +331,7 @@ objects:
 #       name: "${APPLICATION_NAME}"
 #       weight: 100
 #     port:
-#       targetPort: 8888-tcp
+#       targetPort: 3000-tcp
 #     tls:
 #       termination: edge
 #       insecureEdgeTerminationPolicy: Redirect
