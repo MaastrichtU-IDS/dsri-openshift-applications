@@ -139,35 +139,35 @@ objects:
           #       name: "${APPLICATION_NAME}"
         automountServiceAccountToken: false
 
-# - kind: Service
-#   apiVersion: v1
-#   metadata:
-#     name: "${APPLICATION_NAME}"
-#     labels:
-#       app: "${APPLICATION_NAME}"
-#   spec:
-#     ports:
-#     - name: 8888-tcp
-#       protocol: TCP
-#       port: 8888
-#       targetPort: 8888
-#     selector:
-#       app: "${APPLICATION_NAME}"
-#       deploymentconfig: "${APPLICATION_NAME}"
-# - kind: Route
-#   apiVersion: route.openshift.io/v1
-#   metadata:
-#     name: "${APPLICATION_NAME}"
-#     labels:
-#       app: "${APPLICATION_NAME}"
-#   spec:
-#     host: ''
-#     to:
-#       kind: Service
-#       name: "${APPLICATION_NAME}"
-#       weight: 100
-#     port:
-#       targetPort: 8888-tcp
-#     tls:
-#       termination: edge
-#       insecureEdgeTerminationPolicy: Redirect
+- kind: Service
+  apiVersion: v1
+  metadata:
+    name: "${APPLICATION_NAME}"
+    labels:
+      app: "${APPLICATION_NAME}"
+  spec:
+    ports:
+    - name: 8888-tcp
+      protocol: TCP
+      port: 8888
+      targetPort: 8888
+    selector:
+      app: "${APPLICATION_NAME}"
+      deploymentconfig: "${APPLICATION_NAME}"
+- kind: Route
+  apiVersion: route.openshift.io/v1
+  metadata:
+    name: "${APPLICATION_NAME}"
+    labels:
+      app: "${APPLICATION_NAME}"
+  spec:
+    host: ''
+    to:
+      kind: Service
+      name: "${APPLICATION_NAME}"
+      weight: 100
+    port:
+      targetPort: 8888-tcp
+    tls:
+      termination: edge
+      insecureEdgeTerminationPolicy: Redirect
