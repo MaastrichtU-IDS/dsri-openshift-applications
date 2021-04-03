@@ -9,6 +9,7 @@ metadata:
       Start RStudio with the rstudio user which has root permissions (sudo).
 
       📂 Use the /home/rstudio folder (workspace of the RStudio UI) to store your data in a persistent storage automatically created.
+      You can find the persistent storage in the DSRI web UI, go to Administrator view > Storage > Persistent Volume Claims
       
       This template uses rocker RStudio image hosted in the GitHub Container Registry.
       Visit https://github.com/MaastrichtU-IDS/rstudio for more details and to customize the image

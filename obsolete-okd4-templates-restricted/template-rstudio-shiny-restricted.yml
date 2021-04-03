@@ -13,6 +13,7 @@ metadata:
       Starts RStudio Server with Shiny server.
 
       📂 Use the `/mnt/APPLICATION_NAME` folder (workspace of the RStudio UI) to store your data in the persistent storage automatically created
+      You can find the persistent storage in the DSRI web UI, go to Administrator view > Storage > Persistent Volume Claims
 
       You will not be able to install system packages after the application has started (e.g. with apt-get or yum)
     iconClass: icon-play

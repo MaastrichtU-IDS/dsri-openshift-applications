@@ -11,6 +11,7 @@ metadata:
       Login with the admin username, using admin as password, and change the password at the first connection ⚠️
 
       📂 We use the folder `/opt/graphdb/home` in the container to store the database and import folder in the persistent storage
+      You can find the persistent storage in the DSRI web UI, go to Administrator view > Storage > Persistent Volume Claims
 
       Visit https://github.com/Ontotext-AD/graphdb-docker for more details about the image used
     iconClass: icon-3scale

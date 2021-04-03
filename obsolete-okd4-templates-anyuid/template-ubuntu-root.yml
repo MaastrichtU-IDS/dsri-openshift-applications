@@ -2,35 +2,40 @@
 kind: Template
 apiVersion: template.openshift.io/v1
 metadata:
-  name: trinityrnaseq
+  name: ubuntu-root-persistent
   annotations:
-    openshift.io/display-name: trinityrnaseq with root user (Persistent)
+    openshift.io/display-name: Ubuntu with root user (Persistent)
     description: |-
-      Start trinityrnaseq with the 'root' user which has sudo permissions to install anything.
+      Start ubuntu with the 'root' user which has sudo permissions to install anything.
 
-      📂 Use the `/usr/local/src/work` folder (home of the root user) to store your data in the existing persistent storage
-      🔗 We enabled the port 8787 in the trinityrnaseq container if you need to deploy applications
+      📂 Use the `/root` folder (home of the root user) to store your data in the existing persistent storage
+      You can find the persistent storage in the DSRI web UI, go to Administrator view > Storage > Persistent Volume Claims
+      🔗 We enabled the port 8080 in the Ubuntu container if you need to deploy applications
       
-      Image from https://github.com/trinityrnaseq/trinityrnaseq, hosted in the GitHub Container Registry.
-    iconClass: icon-scala
-    tags: trinityrnaseq,persistent,omics
+      Image based on official ubuntu image, hosted in the GitHub Container Registry.
+      Visit https://github.com/MaastrichtU-IDS/ubuntu for more details on the image
+      Visit original Ubuntu image at https://hub.docker.com/_/ubuntu
+
+      🔒 You need root containers enabled (aka. anyuid) in your project to start this application.
+    iconClass: icon-ubuntu
+    tags: ubuntu,root,persistent
     openshift.io/provider-display-name: Institute of Data Science, UM
-    openshift.io/documentation-url: https://maastrichtu-ids.github.io/dsri-documentation/docs/catalog-utilities#trinity-rna-seq
+    openshift.io/documentation-url: https://maastrichtu-ids.github.io/dsri-documentation/docs/catalog-utilities#ubuntu
     openshift.io/support-url: https://maastrichtu-ids.github.io/dsri-documentation/help
     # template.openshift.io/bindable: 'false'
 labels:
-  template: trinityrnaseq
+  template: ubuntu-root-persistent
 message: |-
-  A trinityrnaseq pod has been scheduled for creation in your project, and should be soon available.
+  A Ubuntu pod has been scheduled for creation in your project, and should be soon available.
   Building images takes some minutes to complete, so please be patient. You can follow progress on your projects overview page.
 
   You can use `oc get pods` to get the pod ID and connect using your local terminal `oc rsh POD_ID`
-  Or use the terminal tab in the trinityrnaseq pod view of the OpenShift web UI
+  Or use the terminal tab in the Ubuntu pod view of the OpenShift web UI
 parameters:
 - name: APPLICATION_NAME
   displayName: Application name
   description: Must be unique in the project. It will be used to generate the application URL
-  value: trinityrnaseq
+  value: ubuntu-root
   required: true
 - name: STORAGE_SIZE
   displayName: Storage size
@@ -39,8 +44,8 @@ parameters:
   required: true
 - name: APPLICATION_IMAGE
   displayName: Application Docker image
-  description: See https://github.com/orgs/MaastrichtU-IDS/packages/container/package/trinityrnaseq for more details on the image
-  value: ghcr.io/maastrichtu-ids/trinityrnaseq
+  description: See https://github.com/MaastrichtU-IDS/ubuntu for more details on the image
+  value: ghcr.io/maastrichtu-ids/ubuntu:latest
   required: true
 
 objects:
@@ -63,15 +68,15 @@ objects:
     name: ${APPLICATION_NAME}
     labels:
       app: ${APPLICATION_NAME}
-      template: trinityrnaseq
+      template: ubuntu-root-dynamic
   spec:
     tags:
     - name: latest
       from:
         kind: DockerImage
         name: ${APPLICATION_IMAGE}
-      importPolicy:
-        scheduled: true
+      # importPolicy:
+      #   scheduled: true
     lookupPolicy:
       local: true
 
@@ -90,7 +95,7 @@ objects:
       imageChangeParams:
         automatic: true
         containerNames:
-        - trinityrnaseq-container
+        - ubuntu-container
         from:
           kind: ImageStreamTag
           name: ${APPLICATION_NAME}:latest
@@ -112,11 +117,11 @@ objects:
           persistentVolumeClaim:
             claimName: "${APPLICATION_NAME}"
         containers:
-        - name: trinityrnaseq-container
+        - name: ubuntu-container
           image: ${APPLICATION_NAME}:latest
           command: [ "tail", "-f", "/dev/null"]
           ports:
-          - containerPort: 8787
+          - containerPort: 8080
             protocol: TCP
           # resources:
           #   limits:
@@ -128,7 +133,7 @@ objects:
           volumeMounts:
           - name: data
             # mountPath: "/data"
-            mountPath: "/usr/local/src/work"
+            mountPath: "/root"
         automountServiceAccountToken: false
 
 - kind: Service
@@ -139,10 +144,10 @@ objects:
       app: "${APPLICATION_NAME}"
   spec:
     ports:
-    - name: 8787-tcp
+    - name: 8080-tcp
       protocol: TCP
-      port: 8787
-      targetPort: 8787
+      port: 8080
+      targetPort: 8080
     selector:
       app: "${APPLICATION_NAME}"
       deploymentconfig: "${APPLICATION_NAME}"
