@@ -20,8 +20,8 @@ metadata:
       - jupyter/r-notebook
       - jupyter/pyspark-notebook
       - jupyter/all-spark-notebook
-      - ghcr.io/maastrichtu-ids/jupyterlab (with SPARQL and Java kernels)
-      Or build your own 📦
+      - ghcr.io/maastrichtu-ids/jupyterlab (with Java and SPARQL kernels)
+      Or build your own! Checkout https://github.com/MaastrichtU-IDS/jupyterlab for an example of custom image
 
       Once JupyterLab is deployed you can install pip packages and JupyterLab extensions, but nothing that requires root privileges (such as installing apt or yum packages)
     iconClass: icon-python
