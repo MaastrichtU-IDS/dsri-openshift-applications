@@ -2,39 +2,41 @@
 kind: Template
 apiVersion: template.openshift.io/v1
 labels:
-  template: jupyterlab-dynamic
+  template: jupyterlab-restricted
 metadata:
-  name: jupyterlab-dynamic
+  name: jupyterlab-restricted
   annotations:
-    openshift.io/display-name: JupyterLab (Dynamic)
+    openshift.io/display-name: JupyterLab with restricted user (persistent)
     description: |-
       Start JupyterLab images with regular 'jovyan' user, without sudo privileges. 
 
       📂 Use the `/home/jovyan` folder (workspace of the JupyterLab UI) to store your data in the persistent storage automatically created
       
       You can use any image based on the official Jupyter docker stack: https://github.com/jupyter/docker-stacks
+      - jupyter/minimal-notebook
       - jupyter/scipy-notebook
       - jupyter/datascience-notebook (with Julia kernel)
       - jupyter/tensorflow-notebook
       - jupyter/r-notebook
       - jupyter/pyspark-notebook
       - jupyter/all-spark-notebook
-      - ghcr.io/maastrichtu-ids/jupyterlab:sparql (with SPARQL and Java kernels)
+      - ghcr.io/maastrichtu-ids/jupyterlab (with SPARQL and Java kernels)
       Or build your own 📦
 
       Once JupyterLab is deployed you can install pip packages and JupyterLab extensions, but nothing that requires root privileges (such as installing apt or yum packages)
     iconClass: icon-python
-    tags: python,jupyter,notebook,ephemeral
+    tags: python,jupyter,notebook
     openshift.io/provider-display-name: Institute of Data Science, UM
     openshift.io/documentation-url: https://maastrichtu-ids.github.io/dsri-documentation/docs/deploy-jupyter
     openshift.io/support-url: https://maastrichtu-ids.github.io/dsri-documentation/help
     template.openshift.io/bindable: 'false'
 parameters:
 - name: APPLICATION_NAME
-  value: jupyterlab-dynamic
+  value: jupyterlab
   required: true
 - name: NOTEBOOK_IMAGE
-  value: jupyter/minimal-notebook:latest
+  value: jupyter/scipy-notebook:latest
+  # value: ghcr.io/maastrichtu-ids/jupyterlab:latest
   required: true
   description: You can use any image based on https://github.com/jupyter/docker-stacks
 - name: PASSWORD
@@ -56,29 +58,29 @@ parameters:
 #   value: "2"
 #   required: true
 objects:
-- kind: ConfigMap
-  apiVersion: v1
-  metadata:
-    name: "${APPLICATION_NAME}-cfg"
-    labels:
-      app: "${APPLICATION_NAME}"
-  data:
-    jupyter_notebook_config.py: |
-      import os
+# - kind: ConfigMap
+#   apiVersion: v1
+#   metadata:
+#     name: "${APPLICATION_NAME}-cfg"
+#     labels:
+#       app: "${APPLICATION_NAME}"
+#   data:
+#     jupyter_notebook_config.py: |
+#       import os
 
-      password = os.environ.get('JUPYTER_NOTEBOOK_PASSWORD')
+#       password = os.environ.get('JUPYTER_NOTEBOOK_PASSWORD')
 
-      if password:
-          import notebook.auth
-          c.NotebookApp.password = notebook.auth.passwd(password)
-          del password
-          del os.environ['JUPYTER_NOTEBOOK_PASSWORD']
+#       if password:
+#           import notebook.auth
+#           c.NotebookApp.password = notebook.auth.passwd(password)
+#           del password
+#           del os.environ['JUPYTER_NOTEBOOK_PASSWORD']
 
-      image_config_file = '/home/jovyan/.jupyter/jupyter_notebook_config.py'
+#       image_config_file = '/home/jovyan/.jupyter/jupyter_notebook_config.py'
 
-      if os.path.exists(image_config_file):
-          with open(image_config_file) as fp:
-              exec(compile(fp.read(), image_config_file, 'exec'), globals())
+#       if os.path.exists(image_config_file):
+#           with open(image_config_file) as fp:
+#               exec(compile(fp.read(), image_config_file, 'exec'), globals())
 
 - apiVersion: "v1"
   kind: "PersistentVolumeClaim"
@@ -116,20 +118,21 @@ objects:
           app: "${APPLICATION_NAME}"
           deploymentconfig: "${APPLICATION_NAME}"
       spec:
-        nodeSelector:
-          dsri.unimaas.nl/cpu: 'true'
+        serviceAccountName: anyuid
+        # nodeSelector:
+        #   dsri.unimaas.nl/cpu: 'true'
         containers:
         - name: jupyter-notebook
           image: "${NOTEBOOK_IMAGE}"
           command:
           - start-notebook.sh
-          - "--config=/etc/jupyter/openshift/jupyter_notebook_config.py"
           - "--no-browser"
           - "--ip=0.0.0.0"
+          # - "--config=/etc/jupyter/openshift/jupyter_notebook_config.py"
           ports:
           - containerPort: 8888
             protocol: TCP
-          # SPARK UI
+          # SPARK UI if needed
           - containerPort: 4040 
             protocol: TCP
           - containerPort: 4041
@@ -142,28 +145,47 @@ objects:
           #     cpu: "128"
           #     memory: "300Gi"
           env:
-          - name: JUPYTER_NOTEBOOK_PASSWORD
+          # - name: JUPYTER_NOTEBOOK_PASSWORD
+          - name: JUPYTER_TOKEN
             value: "${PASSWORD}"
           - name: JUPYTER_ENABLE_LAB
             value: "yes"
           # - name: GRANT_SUDO
           #   value: "yes"
           volumeMounts:
-          - name: configs
-            mountPath: "/etc/jupyter/openshift"
           - name: data
             mountPath: "/home/jovyan"
+          # - name: configs
+          #   mountPath: "/etc/jupyter/openshift"
         automountServiceAccountToken: false
         securityContext:
           supplementalGroups:
           - 100
+          # runAsUser: 0
         volumes:
-        - name: configs
-          configMap:
-            name: "${APPLICATION_NAME}-cfg"
         - name: data
           persistentVolumeClaim:
             claimName: "${APPLICATION_NAME}"
+        # - name: configs
+        #   configMap:
+        #     name: "${APPLICATION_NAME}-cfg"
+
+- kind: Service
+  apiVersion: v1
+  metadata:
+    name: "${APPLICATION_NAME}"
+    labels:
+      app: "${APPLICATION_NAME}"
+  spec:
+    ports:
+    - name: 8888-tcp
+      protocol: TCP
+      port: 8888
+      targetPort: 8888
+    selector:
+      app: "${APPLICATION_NAME}"
+      deploymentconfig: "${APPLICATION_NAME}"
+    type: ClusterIP
 - kind: Route
   apiVersion: v1
   metadata:
@@ -181,23 +203,8 @@ objects:
     tls:
       termination: edge
       insecureEdgeTerminationPolicy: Redirect
-- kind: Service
-  apiVersion: v1
-  metadata:
-    name: "${APPLICATION_NAME}"
-    labels:
-      app: "${APPLICATION_NAME}"
-  spec:
-    ports:
-    - name: 8888-tcp
-      protocol: TCP
-      port: 8888
-      targetPort: 8888
-    selector:
-      app: "${APPLICATION_NAME}"
-      deploymentconfig: "${APPLICATION_NAME}"
-    type: ClusterIP
 
+# Service for Spark UI if needed
 - kind: Service
   apiVersion: v1
   metadata:

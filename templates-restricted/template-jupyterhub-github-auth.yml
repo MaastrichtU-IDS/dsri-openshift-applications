@@ -21,7 +21,7 @@ metadata:
       - jupyter/r-notebook
       - jupyter/pyspark-notebook
       - jupyter/all-spark-notebook
-      - ghcr.io/maastrichtu-ids/jupyterlab-on-openshift:sparql (with SPARQL and Java kernels)
+      - ghcr.io/maastrichtu-ids/jupyterlab:sparql (with SPARQL and Java kernels)
       Or build your own 📦
 
       Once JupyterLab is deployed you can install pip packages and JupyterLab extensions, but nothing that requires root privileges (such as installing apt or yum packages)
@@ -404,7 +404,7 @@ objects:
               'display_name': 'Java Notebook with SPARQL kernel (Debian | Python 3.6 | Java kernel | SPARQL kernel | NodeJS 12)',
               'default': True,
               'kubespawner_override': {
-                  'image_spec': 'ghcr.io/maastrichtu-ids/jupyterlab-on-openshift:sparql'
+                  'image_spec': 'ghcr.io/maastrichtu-ids/jupyterlab:sparql'
               }
           },
           {

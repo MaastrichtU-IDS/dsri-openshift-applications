@@ -2,9 +2,9 @@
 kind: Template
 apiVersion: template.openshift.io/v1
 metadata:
-  name: jupyterlab-root-persistent
+  name: jupyterlab-root
   annotations:
-    openshift.io/display-name: JupyterLab with root user (Persistent)
+    openshift.io/display-name: JupyterLab with root user
     description: |-
       Start JupyterLab with sudo (root) privileges
 
@@ -17,7 +17,7 @@ metadata:
       - jupyter/r-notebook
       - jupyter/pyspark-notebook
       - jupyter/all-spark-notebook
-      - ghcr.io/maastrichtu-ids/jupyterlab-on-openshift (with SPARQL and Java kernels)
+      - ghcr.io/maastrichtu-ids/jupyterlab (with SPARQL and Java kernels)
       Or build your own 📦
 
       Visit https://github.com/MaastrichtU-IDS/jupyterlab-on-openshift for more details, and to customize the image
@@ -28,7 +28,7 @@ metadata:
     openshift.io/support-url: https://maastrichtu-ids.github.io/dsri-documentation/help
     # template.openshift.io/bindable: 'false'
 labels:
-  template: jupyterlab-root-persistent
+  template: jupyterlab-root
 parameters:
 - name: APPLICATION_NAME
   displayName: Application name
@@ -42,13 +42,13 @@ parameters:
   from: "[a-zA-Z0-9]{16}"
   generate: expression
   required: true
-- name: GIT_REPOSITORY_URL
-  displayName: Git repository URL
-  description: URL to the Git repository that will be cloned. Dependencies from the
-    requirements.txt will be installed at runtime, and the repository will be cloned
-    in the workspace.
-  # value: https://github.com/vemonet/translator-sparql-notebook
-  required: false
+# - name: GIT_REPOSITORY_URL
+#   displayName: Git repository URL
+#   description: URL to the Git repository that will be cloned. Dependencies from the
+#     requirements.txt will be installed at runtime, and the repository will be cloned
+#     in the workspace.
+#   # value: https://github.com/vemonet/translator-sparql-notebook
+#   required: false
 - name: STORAGE_SIZE
   displayName: Storage size
   description: Size of the storage used for the notebook (approximate).
@@ -56,8 +56,8 @@ parameters:
   required: true
 - name: APPLICATION_IMAGE
   displayName: Application Docker image
-  description: See https://github.com/vemonet/Jupyterlab for more details and to customize the image
-  value: ghcr.io/vemonet/jupyterlab:latest
+  description: Based on jupyter/docker-stacks images
+  value: ghcr.io/maastrichtu-ids/jupyterlab:latest
   required: true
 # - name: STORAGE_NAME
 #   displayName: Storage name
@@ -143,6 +143,10 @@ objects:
         serviceAccountName: anyuid
         # nodeSelector:
         #   dsri.unimaas.nl/cpu: 'true'
+        # securityContext:
+        #   runAsUser: 1000
+        #   runAsGroup: 3000
+        #   fsGroup: 2000
         volumes:
         - name: data
           persistentVolumeClaim:
@@ -172,13 +176,13 @@ objects:
             allowPrivilegeEscalation: false
             runAsUser: 0
           env:
-          - name: PASSWORD
+          - name: JUPYTER_TOKEN
             valueFrom:
               secretKeyRef:
                 key: application-password
                 name: "${APPLICATION_NAME}"
-          - name: GIT_URL
-            value: "${GIT_REPOSITORY_URL}"
+          - name: GRANT_SUDO
+            value: "yes"
         automountServiceAccountToken: false
 
 - kind: Service
