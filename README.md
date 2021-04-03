@@ -1,5 +1,7 @@
 
 
+**⚠️ OBSOLETE REPOSITORY**: most templates for OKD4 have been moved and are now maintained in https://github.com/MaastrichtU-IDS/dsri-documentation/tree/master/applications
+
 Templates and example build for the DSRI OpenShift applications.
 
 ## Upload templates to your project
