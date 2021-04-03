@@ -11,6 +11,7 @@ metadata:
       Start JupyterLab images as the `jovyan` user, with sudo privileges to install anything you need. 
 
       📂 Use the `/home/jovyan` folder (workspace of the JupyterLab UI) to store your data in the persistent storage automatically created
+      You can find the persistent storage in the DSRI web UI, go to Administrator view > Storage > Persistent Volume Claims
       
       You can use any image based on the official Jupyter docker stack: https://github.com/jupyter/docker-stacks
       - jupyter/minimal-notebook
@@ -23,13 +24,12 @@ metadata:
       - ghcr.io/maastrichtu-ids/jupyterlab (with Java and SPARQL kernels)
       Or build your own! Checkout https://github.com/MaastrichtU-IDS/jupyterlab for an example of custom image
 
-      Once JupyterLab is deployed you can install pip packages and JupyterLab extensions, but nothing that requires root privileges (such as installing apt or yum packages)
+      Once JupyterLab is deployed you can install any pip packages, JupyterLab extensions, and apt packages.
     iconClass: icon-python
     tags: python,jupyter,notebook
     openshift.io/provider-display-name: Institute of Data Science, UM
     openshift.io/documentation-url: https://maastrichtu-ids.github.io/dsri-documentation/docs/deploy-jupyter
     openshift.io/support-url: https://maastrichtu-ids.github.io/dsri-documentation/help
-    template.openshift.io/bindable: 'false'
 parameters:
 - name: APPLICATION_NAME
   value: jupyterlab
